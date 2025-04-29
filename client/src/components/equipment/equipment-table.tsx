@@ -70,19 +70,19 @@ export function EquipmentTable() {
   return (
     <Card>
       <CardHeader className="p-4 border-b border-gray-200 flex flex-row items-center justify-between">
-        <CardTitle className="text-lg font-medium text-neutral-800">Equipment Inventory</CardTitle>
+        <CardTitle className="text-lg font-medium text-neutral-800">{t('equipment_inventory')}</CardTitle>
         <div className="flex space-x-2">
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-neutral-400" />
             <Input
-              placeholder="Search equipment..."
+              placeholder={t('search_equipment')}
               className="pl-8 h-9"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
           <Button className="bg-primary-600 hover:bg-primary-700">
-            <Plus className="h-4 w-4 mr-1" /> Add Equipment
+            <Plus className="h-4 w-4 mr-1" /> {t('add_equipment')}
           </Button>
           <Button variant="outline" size="icon">
             <Filter className="h-4 w-4" />
@@ -100,14 +100,14 @@ export function EquipmentTable() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>ID</TableHead>
-                    <TableHead>Name</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Voltage Level</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Last Maintenance</TableHead>
-                    <TableHead>Actions</TableHead>
+                    <TableHead>{t('equipment_id')}</TableHead>
+                    <TableHead>{t('equipment_name')}</TableHead>
+                    <TableHead>{t('equipment_type')}</TableHead>
+                    <TableHead>{t('voltage_level')}</TableHead>
+                    <TableHead>{t('location')}</TableHead>
+                    <TableHead>{t('equipment_status')}</TableHead>
+                    <TableHead>{t('last_maintenance')}</TableHead>
+                    <TableHead>{t('actions')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>

@@ -332,6 +332,17 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     report_configuration: 'Конфигурация отчета',
     based_on: 'на основе',
     and: 'и',
+    operational: 'Рабочий',
+    maintenance: 'Обслуживание',
+    fault: 'Неисправен',
+    equipment_inventory: 'Инвентарь оборудования',
+    search_equipment: 'Поиск оборудования...',
+    add_equipment: 'Добавить оборудование',
+    no_equipment_found: 'Оборудование не найдено',
+    showing: 'Показано',
+    to: 'до',
+    of: 'из',
+    results: 'результатов',
     
     // Dashboard
     overview: 'Обзор',
@@ -344,7 +355,6 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     welcome_message: 'Добро пожаловать в систему управления энергией',
     
     // Equipment
-    add_equipment: 'Добавить оборудование',
     equipment_id: 'ID оборудования',
     equipment_type: 'Тип оборудования',
     equipment_name: 'Название оборудования',
@@ -394,7 +404,6 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     schedule_generation: 'Запланировать генерацию',
     generated_reports: 'Сгенерированные отчеты',
     saved_reports: 'Сохраненные отчеты',
-    operational: 'Операционный',
     commercial: 'Коммерческий',
     financial: 'Финансовый',
     safety: 'Безопасность',
@@ -469,6 +478,17 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     report_configuration: 'Танзимоти ҳисобот',
     based_on: 'дар асоси',
     and: 'ва',
+    operational: 'Амалкунанда',
+    maintenance: 'Нигоҳдорӣ',
+    fault: 'Нуқсон',
+    equipment_inventory: 'Феҳристи таҷҳизот',
+    search_equipment: 'Ҷустуҷӯи таҷҳизот...',
+    add_equipment: 'Илова кардани таҷҳизот',
+    no_equipment_found: 'Ягон таҷҳизот ёфт нашуд',
+    showing: 'Нишон дода шудааст',
+    to: 'то',
+    of: 'аз',
+    results: 'натиҷаҳо',
     
     // Dashboard
     overview: 'Мурури умумӣ',
@@ -481,7 +501,6 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     welcome_message: 'Хуш омадед ба системаи идоракунии энергия',
     
     // Equipment
-    add_equipment: 'Илова кардани таҷҳизот',
     equipment_id: 'ID таҷҳизот',
     equipment_type: 'Навъи таҷҳизот',
     equipment_name: 'Номи таҷҳизот',
@@ -531,7 +550,6 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     schedule_generation: 'Ҷадвали тавлид',
     generated_reports: 'Ҳисоботҳои тавлидшуда',
     saved_reports: 'Ҳисоботҳои нигоҳдошташуда',
-    operational: 'Амалиётӣ',
     commercial: 'Тиҷоратӣ',
     financial: 'Молиявӣ',
     safety: 'Бехатарӣ',
