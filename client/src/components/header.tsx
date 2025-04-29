@@ -1,6 +1,7 @@
 import { Bell, ChevronDown, Menu } from "lucide-react";
 import { useState } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { useLanguage } from "@/hooks/use-language";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -11,6 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Logo } from "@/components/logo";
+import { LanguageSwitcher, LanguageSwitcherMini } from "@/components/language-switcher";
 
 interface HeaderProps {
   onMenuToggle: () => void;
@@ -19,6 +21,7 @@ interface HeaderProps {
 
 export function Header({ onMenuToggle, title }: HeaderProps) {
   const { user, logoutMutation } = useAuth();
+  const { t } = useLanguage();
   const [notificationCount] = useState(3);
 
   return (
@@ -40,6 +43,16 @@ export function Header({ onMenuToggle, title }: HeaderProps) {
         </div>
 
         <div className="flex items-center space-x-4">
+          {/* Language switcher - Desktop version */}
+          <div className="hidden md:block">
+            <LanguageSwitcher />
+          </div>
+
+          {/* Language switcher - Mobile version */}
+          <div className="block md:hidden">
+            <LanguageSwitcherMini />
+          </div>
+
           {/* Notifications */}
           <div className="relative">
             <Button variant="ghost" size="icon" className="rounded-full">
