@@ -9,7 +9,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { NetworkNodeForm } from "./network-node-form";
 import { NetworkConnectionForm } from "./network-connection-form";
-import { NetworkNode, NetworkConnection } from "@shared/schema";
+import { NetworkMeterForm } from "./network-meter-form";
+import { NetworkNode, NetworkConnection, NetworkMeter } from "@shared/schema";
 
 interface NetworkElementDialogProps {
   open: boolean;

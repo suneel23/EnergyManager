@@ -8,7 +8,8 @@ import {
   insertEnergyMeasurementSchema, 
   insertAlertSchema,
   insertNetworkNodeSchema,
-  insertNetworkConnectionSchema 
+  insertNetworkConnectionSchema,
+  insertNetworkMeterSchema
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -264,6 +265,72 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(200).json({ success: true, message: "Network connection deleted" });
     } catch (error) {
       res.status(500).json({ message: "Failed to delete network connection", error });
+    }
+  });
+
+  // Network Meters for Energy Balancing
+  app.get("/api/network/meters", async (req: Request, res: Response) => {
+    try {
+      const meters = await storage.getNetworkMeters();
+      res.json(meters);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch network meters", error });
+    }
+  });
+  
+  app.get("/api/network/meters/node/:nodeId", async (req: Request, res: Response) => {
+    try {
+      const { nodeId } = req.params;
+      const meters = await storage.getNetworkMetersByNodeId(nodeId);
+      res.json(meters);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch meters for node", error });
+    }
+  });
+  
+  app.get("/api/network/meters/connection/:connectionId", async (req: Request, res: Response) => {
+    try {
+      const connectionId = parseInt(req.params.connectionId);
+      const meters = await storage.getNetworkMetersByConnectionId(connectionId);
+      res.json(meters);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch meters for connection", error });
+    }
+  });
+  
+  app.post("/api/network/meters", async (req: Request, res: Response) => {
+    try {
+      const validatedData = insertNetworkMeterSchema.parse(req.body);
+      const meter = await storage.createNetworkMeter(validatedData);
+      res.status(201).json(meter);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid network meter data", error });
+    }
+  });
+  
+  app.put("/api/network/meters/:id", async (req: Request, res: Response) => {
+    try {
+      const meterId = parseInt(req.params.id);
+      const updatedMeter = await storage.updateNetworkMeter(meterId, req.body);
+      if (!updatedMeter) {
+        return res.status(404).json({ message: "Network meter not found" });
+      }
+      res.json(updatedMeter);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to update network meter", error });
+    }
+  });
+  
+  app.delete("/api/network/meters/:id", async (req: Request, res: Response) => {
+    try {
+      const meterId = parseInt(req.params.id);
+      const success = await storage.deleteNetworkMeter(meterId);
+      if (!success) {
+        return res.status(404).json({ message: "Network meter not found" });
+      }
+      res.status(200).json({ success: true, message: "Network meter deleted" });
+    } catch (error) {
+      res.status(400).json({ message: "Failed to delete network meter", error });
     }
   });
 
