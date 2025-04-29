@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useLanguage } from "@/hooks/use-language";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -73,6 +74,7 @@ export function FrequencyReports() {
   const [reportView, setReportView] = useState<"table" | "chart">("table");
   const [selectedYear, setSelectedYear] = useState<string>("2025");
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const { t } = useLanguage();
 
   const { data: kpis, isLoading } = useQuery<KPI[]>({
     queryKey: ["/api/kpis/frequency-reports"],
@@ -310,8 +312,8 @@ export function FrequencyReports() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle>Reports by Frequency</CardTitle>
-          <CardDescription>Loading reporting data...</CardDescription>
+          <CardTitle>{t('kpi_reports')}</CardTitle>
+          <CardDescription>{t('loading')}...</CardDescription>
         </CardHeader>
         <CardContent className="h-[450px] flex items-center justify-center">
           <div className="animate-pulse space-y-4">
@@ -329,9 +331,9 @@ export function FrequencyReports() {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between pb-4 space-y-0">
         <div>
-          <CardTitle>Reports by Frequency</CardTitle>
+          <CardTitle>{t('kpi_reports')}</CardTitle>
           <CardDescription>
-            View reports based on monthly, quarterly, and yearly reporting frequency
+            {t('view')} {t('reports')}
           </CardDescription>
         </div>
         <div className="flex items-center space-x-2">
@@ -385,7 +387,7 @@ export function FrequencyReports() {
           
           <Button variant="outline" size="sm" className="flex gap-2">
             <Download className="h-4 w-4" />
-            <span className="hidden sm:inline">Export</span>
+            <span className="hidden sm:inline">{t('export')}</span>
           </Button>
         </div>
       </CardHeader>
@@ -398,9 +400,9 @@ export function FrequencyReports() {
           className="space-y-4"
         >
           <TabsList className="w-full justify-start">
-            <TabsTrigger value="monthly" className="flex-1 max-w-[150px]">Monthly</TabsTrigger>
-            <TabsTrigger value="quarterly" className="flex-1 max-w-[150px]">Quarterly</TabsTrigger>
-            <TabsTrigger value="yearly" className="flex-1 max-w-[150px]">Yearly</TabsTrigger>
+            <TabsTrigger value="monthly" className="flex-1 max-w-[150px]">{t('monthly')}</TabsTrigger>
+            <TabsTrigger value="quarterly" className="flex-1 max-w-[150px]">{t('quarterly')}</TabsTrigger>
+            <TabsTrigger value="yearly" className="flex-1 max-w-[150px]">{t('yearly')}</TabsTrigger>
           </TabsList>
           
           <TabsContent value={activeTab}>

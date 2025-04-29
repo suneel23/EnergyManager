@@ -34,7 +34,7 @@ export default function ReportsPage() {
           <div>
             <h1 className="text-2xl font-bold tracking-tight">{t('reports')} & {t('analytics')}</h1>
             <p className="text-muted-foreground">
-              {t('generate')} {t('report_standard')}, {t('view')} {t('system_logs')}, {t('analytics')} {t('energy')}
+              {t('generate')} {t('report_standard')}, {t('view')} {t('system_logs')}, {t('analytics')}
             </p>
           </div>
         </div>
@@ -54,12 +54,12 @@ export default function ReportsPage() {
             <TabsTrigger value="logs" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               <span className="hidden md:inline">{t('system_logs')}</span>
-              <span className="inline md:hidden">{t('logs')}</span>
+              <span className="inline md:hidden">Logs</span>
             </TabsTrigger>
             <TabsTrigger value="energy" className="flex items-center gap-2">
               <Zap className="h-4 w-4" />
               <span className="hidden md:inline">{t('energy_reports')}</span>
-              <span className="inline md:hidden">{t('energy')}</span>
+              <span className="inline md:hidden">Energy</span>
             </TabsTrigger>
             <TabsTrigger value="predictive" className="flex items-center gap-2">
               <Brain className="h-4 w-4" />
