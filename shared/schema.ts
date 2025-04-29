@@ -134,6 +134,33 @@ export const insertNetworkConnectionSchema = createInsertSchema(networkConnectio
   id: true,
 });
 
+// Network meters for energy balance verification
+export const networkMeters = pgTable("network_meters", {
+  id: serial("id").primaryKey(),
+  meterId: text("meter_id").notNull().unique(),
+  connectionId: integer("connection_id").notNull(),  // Reference to the connection this meter is attached to
+  nodeId: text("node_id").notNull(),                 // Reference to the node this meter is attached to
+  direction: text("direction").notNull(),            // 'in' or 'out' - direction of power flow 
+  name: text("name").notNull(),
+  location: text("location").notNull(),
+  type: text("type").notNull().default("power"),     // power, voltage, current
+  unit: text("unit").notNull().default("kW"),        // kW, MW, kV, V, A
+  value: real("value").notNull().default("0"),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+  status: text("status").notNull().default("active"), // active, inactive, fault
+  x: integer("x").notNull(),                         // Position for rendering on diagram
+  y: integer("y").notNull(),                         // Position for rendering on diagram
+});
+
+export const insertNetworkMeterSchema = createInsertSchema(networkMeters, {
+  value: z.number(),
+  x: z.number(),
+  y: z.number(),
+}).omit({
+  id: true,
+  lastUpdated: true,
+});
+
 // Types
 export type User = typeof users.$inferSelect;
 export type InsertUser = z.infer<typeof insertUserSchema>;
@@ -155,3 +182,6 @@ export type InsertNetworkNode = z.infer<typeof insertNetworkNodeSchema>;
 
 export type NetworkConnection = typeof networkConnections.$inferSelect;
 export type InsertNetworkConnection = z.infer<typeof insertNetworkConnectionSchema>;
+
+export type NetworkMeter = typeof networkMeters.$inferSelect;
+export type InsertNetworkMeter = z.infer<typeof insertNetworkMeterSchema>;

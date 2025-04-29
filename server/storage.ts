@@ -53,6 +53,14 @@ export interface IStorage {
   deleteNetworkNode(id: number): Promise<boolean>;
   deleteNetworkConnection(id: number): Promise<boolean>;
   
+  // Network meters for energy balance
+  getNetworkMeters(): Promise<NetworkMeter[]>;
+  getNetworkMetersByNodeId(nodeId: string): Promise<NetworkMeter[]>;
+  getNetworkMetersByConnectionId(connectionId: number): Promise<NetworkMeter[]>;
+  createNetworkMeter(meter: InsertNetworkMeter): Promise<NetworkMeter>;
+  updateNetworkMeter(id: number, meter: Partial<NetworkMeter>): Promise<NetworkMeter | undefined>;
+  deleteNetworkMeter(id: number): Promise<boolean>;
+  
   // Session management
   sessionStore: session.SessionStore;
 }
@@ -65,6 +73,7 @@ export class MemStorage implements IStorage {
   private alertsMap: Map<number, Alert>;
   private networkNodesMap: Map<number, NetworkNode>;
   private networkConnectionsMap: Map<number, NetworkConnection>;
+  private networkMetersMap: Map<number, NetworkMeter>;
   
   private userIdCounter: number = 1;
   private equipmentIdCounter: number = 1;
@@ -73,6 +82,7 @@ export class MemStorage implements IStorage {
   private alertIdCounter: number = 1;
   private networkNodeIdCounter: number = 1;
   private networkConnectionIdCounter: number = 1;
+  private networkMeterIdCounter: number = 1;
   
   sessionStore: session.SessionStore;
 
@@ -84,6 +94,7 @@ export class MemStorage implements IStorage {
     this.alertsMap = new Map();
     this.networkNodesMap = new Map();
     this.networkConnectionsMap = new Map();
+    this.networkMetersMap = new Map();
     
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000 // Prune expired entries every 24h
@@ -350,6 +361,50 @@ export class MemStorage implements IStorage {
   
   async deleteNetworkConnection(id: number): Promise<boolean> {
     return this.networkConnectionsMap.delete(id);
+  }
+  
+  // Network meter methods
+  async getNetworkMeters(): Promise<NetworkMeter[]> {
+    return Array.from(this.networkMetersMap.values());
+  }
+  
+  async getNetworkMetersByNodeId(nodeId: string): Promise<NetworkMeter[]> {
+    return Array.from(this.networkMetersMap.values())
+      .filter(meter => meter.nodeId === nodeId);
+  }
+  
+  async getNetworkMetersByConnectionId(connectionId: number): Promise<NetworkMeter[]> {
+    return Array.from(this.networkMetersMap.values())
+      .filter(meter => meter.connectionId === connectionId);
+  }
+  
+  async createNetworkMeter(insertMeter: InsertNetworkMeter): Promise<NetworkMeter> {
+    const id = this.networkMeterIdCounter++;
+    const now = new Date();
+    const meter: NetworkMeter = {
+      ...insertMeter,
+      id,
+      lastUpdated: now
+    };
+    this.networkMetersMap.set(id, meter);
+    return meter;
+  }
+  
+  async updateNetworkMeter(id: number, meterData: Partial<NetworkMeter>): Promise<NetworkMeter | undefined> {
+    const meter = this.networkMetersMap.get(id);
+    if (!meter) return undefined;
+    
+    const updatedMeter = { 
+      ...meter, 
+      ...meterData,
+      lastUpdated: new Date()
+    };
+    this.networkMetersMap.set(id, updatedMeter);
+    return updatedMeter;
+  }
+  
+  async deleteNetworkMeter(id: number): Promise<boolean> {
+    return this.networkMetersMap.delete(id);
   }
 
   // Initialize demo data
