@@ -146,7 +146,7 @@ export function SingleLineDiagram() {
     }
   };
 
-  // Get node symbol based on type using international IEC 60617 standard symbols
+  // Get node symbol based on type using comprehensive international IEC 60617 standard symbols
   const getNodeSymbol = (type: string, status: string, x: number, y: number) => {
     const color = getStatusColor(status);
     
@@ -155,13 +155,14 @@ export function SingleLineDiagram() {
         // IEC 60617: Busbar symbol (horizontal line)
         return (
           <rect 
-            x={x - 35} 
-            y={y - 4} 
-            width={70} 
-            height={8} 
+            x={x - 40} 
+            y={y - 5} 
+            width={80} 
+            height={10} 
             fill={color} 
             stroke="#000" 
-            strokeWidth={1}
+            strokeWidth={1.5}
+            rx={2}
           />
         );
       case "junction":
@@ -186,26 +187,48 @@ export function SingleLineDiagram() {
           </g>
         );
       case "generator":
-        // IEC 60617: Generator symbol (circle with G)
+        // IEC 60617: Synchronous generator symbol
         return (
           <g>
             <circle 
               cx={x} 
               cy={y} 
-              r={12} 
+              r={15} 
               fill="white" 
               stroke={color} 
               strokeWidth={1.5}
             />
             <text
               x={x}
-              y={y + 4}
+              y={y + 5}
               textAnchor="middle"
-              fontSize={12}
+              fontSize={14}
               fontWeight="bold"
               fill={color}>
               G
             </text>
+          </g>
+        );
+      case "transformer":
+        // IEC 60617: Transformer symbol (two circles)
+        return (
+          <g>
+            <circle 
+              cx={x - 8} 
+              cy={y} 
+              r={10} 
+              fill="white" 
+              stroke={color} 
+              strokeWidth={1.5}
+            />
+            <circle 
+              cx={x + 8} 
+              cy={y} 
+              r={10} 
+              fill="white" 
+              stroke={color} 
+              strokeWidth={1.5}
+            />
           </g>
         );
       case "load":
@@ -213,19 +236,172 @@ export function SingleLineDiagram() {
         return (
           <g>
             <path 
-              d={`M ${x-15},${y} L ${x-10},${y-5} L ${x-5},${y+5} L ${x},${y-5} L ${x+5},${y+5} L ${x+10},${y-5} L ${x+15},${y}`} 
+              d={`M ${x-15},${y} L ${x-10},${y-6} L ${x-5},${y+6} L ${x},${y-6} L ${x+5},${y+6} L ${x+10},${y-6} L ${x+15},${y}`} 
               stroke={color} 
               strokeWidth={1.5} 
               fill="none" 
             />
+            <line 
+              x1={x-15} 
+              y1={y-8} 
+              x2={x+15} 
+              y2={y-8} 
+              stroke={color} 
+              strokeWidth={1}
+            />
           </g>
         );
       case "capacitor":
-        // IEC 60617: Capacitor symbol
+        // IEC 60617: Capacitor symbol (parallel plates)
         return (
           <g>
-            <line x1={x-10} y1={y} x2={x+10} y2={y} stroke={color} strokeWidth={1.5} />
+            <line x1={x-12} y1={y-8} x2={x+12} y2={y-8} stroke={color} strokeWidth={1.5} />
+            <line x1={x-12} y1={y+8} x2={x+12} y2={y+8} stroke={color} strokeWidth={1.5} />
+            <line x1={x} y1={y-18} x2={x} y2={y-8} stroke={color} strokeWidth={1.5} />
+            <line x1={x} y1={y+8} x2={x} y2={y+18} stroke={color} strokeWidth={1.5} />
+          </g>
+        );
+      case "substation":
+        // IEC 60617: Substation symbol (rectangle with diagonal corners)
+        return (
+          <g>
+            <rect 
+              x={x-20} 
+              y={y-15} 
+              width={40} 
+              height={30} 
+              fill="white" 
+              stroke={color} 
+              strokeWidth={1.5}
+            />
+            <line x1={x-20} y1={y-15} x2={x+20} y2={y+15} stroke={color} strokeWidth={0.8} />
+            <line x1={x-20} y1={y+15} x2={x+20} y2={y-15} stroke={color} strokeWidth={0.8} />
+            <text
+              x={x}
+              y={y+5}
+              textAnchor="middle"
+              fontSize={10}
+              fill={color}>
+              SUB
+            </text>
+          </g>
+        );
+      case "inductor":
+        // IEC 60617: Inductor/reactor symbol (arch pattern)
+        return (
+          <g>
+            <path 
+              d={`M ${x-15},${y} 
+                  Q ${x-10},${y-10} ${x-5},${y} 
+                  Q ${x},${y-10} ${x+5},${y} 
+                  Q ${x+10},${y-10} ${x+15},${y}`} 
+              stroke={color} 
+              strokeWidth={1.5} 
+              fill="none" 
+            />
+            <line x1={x-15} y1={y} x2={x-15} y2={y+10} stroke={color} strokeWidth={1.5} />
+            <line x1={x+15} y1={y} x2={x+15} y2={y+10} stroke={color} strokeWidth={1.5} />
+          </g>
+        );
+      case "motor":
+        // IEC 60617: Motor symbol (circle with M)
+        return (
+          <g>
+            <circle 
+              cx={x} 
+              cy={y} 
+              r={15} 
+              fill="white" 
+              stroke={color} 
+              strokeWidth={1.5}
+            />
+            <text
+              x={x}
+              y={y + 5}
+              textAnchor="middle"
+              fontSize={14}
+              fontWeight="bold"
+              fill={color}>
+              M
+            </text>
+          </g>
+        );
+      case "battery":
+        // IEC 60617: Battery symbol
+        return (
+          <g>
+            <line x1={x-15} y1={y-8} x2={x+15} y2={y-8} stroke={color} strokeWidth={1.5} />
+            <line x1={x-10} y1={y} x2={x+10} y2={y} stroke={color} strokeWidth={3} />
+            <line x1={x-15} y1={y+8} x2={x+15} y2={y+8} stroke={color} strokeWidth={1.5} />
+            <line x1={x-10} y1={y+16} x2={x+10} y2={y+16} stroke={color} strokeWidth={3} />
+            <line x1={x} y1={y-15} x2={x} y2={y-8} stroke={color} strokeWidth={1.5} />
+            <line x1={x} y1={y+16} x2={x} y2={y+23} stroke={color} strokeWidth={1.5} />
+          </g>
+        );
+      case "fuse":
+        // IEC 60617: Fuse symbol
+        return (
+          <g>
+            <rect 
+              x={x-15} 
+              y={y-8} 
+              width={30} 
+              height={16} 
+              fill="white" 
+              stroke={color} 
+              strokeWidth={1.5}
+            />
+            <line 
+              x1={x-10} 
+              y1={y} 
+              x2={x+10} 
+              y2={y} 
+              stroke={color} 
+              strokeWidth={1}
+              strokeDasharray={status.toLowerCase() === "open" ? "2,1" : "none"}
+            />
+          </g>
+        );
+      case "solar":
+        // Solar panel symbol (not strictly IEC but commonly used)
+        return (
+          <g>
+            <rect 
+              x={x-18} 
+              y={y-12} 
+              width={36} 
+              height={24} 
+              fill="white" 
+              stroke={color} 
+              strokeWidth={1.5}
+            />
+            {/* Grid pattern for solar panel */}
+            <line x1={x-18} y1={y-4} x2={x+18} y2={y-4} stroke={color} strokeWidth={0.8} />
+            <line x1={x-18} y1={y+4} x2={x+18} y2={y+4} stroke={color} strokeWidth={0.8} />
+            <line x1={x-6} y1={y-12} x2={x-6} y2={y+12} stroke={color} strokeWidth={0.8} />
+            <line x1={x+6} y1={y-12} x2={x+6} y2={y+12} stroke={color} strokeWidth={0.8} />
+            
+            {/* Sun rays */}
+            <path 
+              d={`M ${x-24},${y-16} L ${x-18},${y-12}`} 
+              stroke={color} 
+              strokeWidth={1}
+            />
+            <path 
+              d={`M ${x+24},${y-16} L ${x+18},${y-12}`} 
+              stroke={color} 
+              strokeWidth={1}
+            />
+          </g>
+        );
+      case "groundconnection":
+        // IEC 60617: Ground connection symbol
+        return (
+          <g>
             <line x1={x} y1={y-10} x2={x} y2={y+10} stroke={color} strokeWidth={1.5} />
+            <line x1={x-12} y1={y+10} x2={x+12} y2={y+10} stroke={color} strokeWidth={1.5} />
+            <line x1={x-8} y1={y+15} x2={x+8} y2={y+15} stroke={color} strokeWidth={1.5} />
+            <line x1={x-4} y1={y+20} x2={x+4} y2={y+20} stroke={color} strokeWidth={1.5} />
           </g>
         );
       default:
@@ -234,7 +410,7 @@ export function SingleLineDiagram() {
           <circle 
             cx={x} 
             cy={y} 
-            r={4} 
+            r={5} 
             fill={color} 
             stroke="#000" 
             strokeWidth={1}
@@ -243,20 +419,19 @@ export function SingleLineDiagram() {
     }
   };
 
-  // Get connection line based on type using international IEC 60617 standard symbols
+  // Get connection line based on type using comprehensive international IEC 60617 standard symbols
   const getConnectionLine = (connection: DiagramConnection) => {
     const { sourceX, sourceY, targetX, targetY, type, status } = connection;
     const color = getStatusColor(status);
     
-    // Calculate angle for proper symbol orientation
+    // Calculate angle for proper symbol orientation and midpoint
     const angle = Math.atan2(targetY - sourceY, targetX - sourceX) * 180 / Math.PI;
+    const midX = (sourceX + targetX) / 2;
+    const midY = (sourceY + targetY) / 2;
     
     switch (type.toLowerCase()) {
       case "transformer":
         // IEC 60617: Two-winding transformer symbol
-        const midX = (sourceX + targetX) / 2;
-        const midY = (sourceY + targetY) / 2;
-        
         return (
           <g>
             <line 
@@ -268,9 +443,9 @@ export function SingleLineDiagram() {
               strokeWidth={2}
             />
             {/* Primary winding */}
-            <circle cx={midX - 10} cy={midY} r={8} fill="white" stroke={color} strokeWidth={1.5} />
+            <circle cx={midX - 10} cy={midY} r={10} fill="white" stroke={color} strokeWidth={1.5} />
             {/* Secondary winding */}
-            <circle cx={midX + 10} cy={midY} r={8} fill="white" stroke={color} strokeWidth={1.5} />
+            <circle cx={midX + 10} cy={midY} r={10} fill="white" stroke={color} strokeWidth={1.5} />
             <line 
               x1={midX + 15} 
               y1={midY} 
@@ -281,10 +456,40 @@ export function SingleLineDiagram() {
             />
           </g>
         );
+      case "autotransformer":
+        // IEC 60617: Autotransformer symbol
+        return (
+          <g>
+            <line 
+              x1={sourceX} 
+              y1={sourceY} 
+              x2={midX - 20} 
+              y2={midY} 
+              stroke={color} 
+              strokeWidth={2}
+            />
+            <path
+              d={`M ${midX-20},${midY} 
+                  Q ${midX-10},${midY-12} ${midX},${midY} 
+                  Q ${midX+10},${midY+12} ${midX+20},${midY}`}
+              fill="none"
+              stroke={color}
+              strokeWidth={1.5}
+            />
+            <line 
+              x1={midX + 20} 
+              y1={midY} 
+              x2={targetX} 
+              y2={targetY} 
+              stroke={color} 
+              strokeWidth={2}
+            />
+          </g>
+        );
       case "circuit breaker":
         // IEC 60617: Circuit breaker symbol
-        const cbMidX = (sourceX + targetX) / 2;
-        const cbMidY = (sourceY + targetY) / 2;
+        const cbMidX = midX;
+        const cbMidY = midY;
         
         return (
           <g>
@@ -297,20 +502,32 @@ export function SingleLineDiagram() {
               strokeWidth={2}
             />
             
-            {/* Circuit breaker symbol */}
+            {/* Circuit breaker symbol - improved with square container */}
+            <rect
+              x={cbMidX - 14}
+              y={cbMidY - 14}
+              width={28}
+              height={28}
+              fill="white"
+              stroke={color}
+              strokeWidth={0.8}
+              strokeDasharray="3,2"
+              rx={2}
+            />
+            
             {status.toLowerCase() === "open" ? (
               // Open circuit breaker
               <g>
                 <line 
                   x1={cbMidX - 12} 
                   y1={cbMidY} 
-                  x2={cbMidX - 4} 
+                  x2={cbMidX - 3} 
                   y2={cbMidY - 8} 
                   stroke={color} 
                   strokeWidth={2}
                 />
                 <line 
-                  x1={cbMidX + 4} 
+                  x1={cbMidX + 3} 
                   y1={cbMidY + 8} 
                   x2={cbMidX + 12} 
                   y2={cbMidY} 
@@ -331,8 +548,8 @@ export function SingleLineDiagram() {
             )}
             
             {/* Fixed contacts */}
-            <circle cx={cbMidX - 12} cy={cbMidY} r={2} fill={color} stroke="none" />
-            <circle cx={cbMidX + 12} cy={cbMidY} r={2} fill={color} stroke="none" />
+            <circle cx={cbMidX - 12} cy={cbMidY} r={2.5} fill={color} stroke="none" />
+            <circle cx={cbMidX + 12} cy={cbMidY} r={2.5} fill={color} stroke="none" />
             
             <line 
               x1={cbMidX + 12} 
@@ -344,10 +561,86 @@ export function SingleLineDiagram() {
             />
           </g>
         );
+      case "recloser":
+        // Distribution recloser (automatic circuit breaker)
+        const rMidX = midX;
+        const rMidY = midY;
+        
+        return (
+          <g>
+            <line 
+              x1={sourceX} 
+              y1={sourceY} 
+              x2={rMidX - 12} 
+              y2={rMidY} 
+              stroke={color} 
+              strokeWidth={2}
+            />
+            
+            {/* Recloser symbol - circuit breaker with auto indication */}
+            <rect
+              x={rMidX - 16}
+              y={rMidY - 16}
+              width={32}
+              height={32}
+              fill="white"
+              stroke={color}
+              strokeWidth={0.8}
+              rx={3}
+            />
+            
+            {status.toLowerCase() === "open" ? (
+              <g>
+                <line 
+                  x1={rMidX - 12} 
+                  y1={rMidY} 
+                  x2={rMidX - 4} 
+                  y2={rMidY - 8} 
+                  stroke={color} 
+                  strokeWidth={2}
+                />
+                <line 
+                  x1={rMidX + 4} 
+                  y1={rMidY + 8} 
+                  x2={rMidX + 12} 
+                  y2={rMidY} 
+                  stroke={color} 
+                  strokeWidth={2}
+                />
+              </g>
+            ) : (
+              <line 
+                x1={rMidX - 12} 
+                y1={rMidY} 
+                x2={rMidX + 12} 
+                y2={rMidY} 
+                stroke={color} 
+                strokeWidth={2}
+              />
+            )}
+            
+            {/* Auto indication (small circle above) */}
+            <circle cx={rMidX} cy={rMidY - 10} r={3} fill="none" stroke={color} strokeWidth={1} />
+            <text x={rMidX} y={rMidY - 8} textAnchor="middle" fontSize={5} fill={color}>A</text>
+            
+            {/* Fixed contacts */}
+            <circle cx={rMidX - 12} cy={rMidY} r={2} fill={color} stroke="none" />
+            <circle cx={rMidX + 12} cy={rMidY} r={2} fill={color} stroke="none" />
+            
+            <line 
+              x1={rMidX + 12} 
+              y1={rMidY} 
+              x2={targetX} 
+              y2={targetY} 
+              stroke={color} 
+              strokeWidth={2}
+            />
+          </g>
+        );
       case "disconnector":
         // IEC 60617: Disconnector/Isolator symbol
-        const dMidX = (sourceX + targetX) / 2;
-        const dMidY = (sourceY + targetY) / 2;
+        const dMidX = midX;
+        const dMidY = midY;
         
         return (
           <g>
@@ -362,7 +655,7 @@ export function SingleLineDiagram() {
             
             {/* Disconnector symbol */}
             {status.toLowerCase() === "open" ? (
-              // Open disconnector
+              // Open disconnector - pivot at one end
               <g>
                 <line 
                   x1={dMidX - 15} 
@@ -372,8 +665,8 @@ export function SingleLineDiagram() {
                   stroke={color} 
                   strokeWidth={2}
                 />
-                <circle cx={dMidX - 15} cy={dMidY} r={2} fill={color} />
-                <circle cx={dMidX + 15} cy={dMidY} r={2} fill={color} />
+                <circle cx={dMidX - 15} cy={dMidY} r={2.5} fill={color} />
+                <circle cx={dMidX + 15} cy={dMidY} r={2.5} fill={color} />
               </g>
             ) : (
               // Closed disconnector
@@ -386,8 +679,8 @@ export function SingleLineDiagram() {
                   stroke={color} 
                   strokeWidth={2}
                 />
-                <circle cx={dMidX - 15} cy={dMidY} r={2} fill={color} />
-                <circle cx={dMidX + 15} cy={dMidY} r={2} fill={color} />
+                <circle cx={dMidX - 15} cy={dMidY} r={2.5} fill={color} />
+                <circle cx={dMidX + 15} cy={dMidY} r={2.5} fill={color} />
               </g>
             )}
             
@@ -401,17 +694,77 @@ export function SingleLineDiagram() {
             />
           </g>
         );
-      case "fuse":
-        // IEC 60617: Fuse symbol
-        const fMidX = (sourceX + targetX) / 2;
-        const fMidY = (sourceY + targetY) / 2;
+      case "earthing_switch":
+        // IEC 60617: Earthing switch symbol
+        const esMidX = midX;
+        const esMidY = midY;
         
         return (
           <g>
             <line 
               x1={sourceX} 
               y1={sourceY} 
-              x2={fMidX - 10} 
+              x2={esMidX - 15} 
+              y2={esMidY} 
+              stroke={color} 
+              strokeWidth={2}
+            />
+            
+            {/* Disconnector part */}
+            {status.toLowerCase() === "open" ? (
+              // Open earthing switch
+              <g>
+                <line 
+                  x1={esMidX - 15} 
+                  y1={esMidY} 
+                  x2={esMidX} 
+                  y2={esMidY - 15} 
+                  stroke={color} 
+                  strokeWidth={2}
+                />
+              </g>
+            ) : (
+              // Closed earthing switch with ground symbol
+              <g>
+                <line 
+                  x1={esMidX - 15} 
+                  y1={esMidY} 
+                  x2={esMidX + 15} 
+                  y2={esMidY} 
+                  stroke={color} 
+                  strokeWidth={2}
+                />
+                {/* Ground symbol */}
+                <line x1={esMidX+15} y1={esMidY} x2={esMidX+15} y2={esMidY+10} stroke={color} strokeWidth={2} />
+                <line x1={esMidX+8} y1={esMidY+10} x2={esMidX+22} y2={esMidY+10} stroke={color} strokeWidth={2} />
+                <line x1={esMidX+10} y1={esMidY+15} x2={esMidX+20} y2={esMidY+15} stroke={color} strokeWidth={2} />
+                <line x1={esMidX+12} y1={esMidY+20} x2={esMidX+18} y2={esMidY+20} stroke={color} strokeWidth={2} />
+              </g>
+            )}
+            
+            <circle cx={esMidX - 15} cy={esMidY} r={2.5} fill={color} />
+            
+            <line 
+              x1={esMidX + 15} 
+              y1={esMidY} 
+              x2={targetX} 
+              y2={targetY} 
+              stroke={color} 
+              strokeWidth={2}
+            />
+          </g>
+        );
+      case "fuse":
+        // IEC 60617: Fuse symbol
+        const fMidX = midX;
+        const fMidY = midY;
+        
+        return (
+          <g>
+            <line 
+              x1={sourceX} 
+              y1={sourceY} 
+              x2={fMidX - 12} 
               y2={fMidY} 
               stroke={color} 
               strokeWidth={2}
@@ -419,27 +772,28 @@ export function SingleLineDiagram() {
             
             {/* Fuse symbol - box with thin line inside */}
             <rect
-              x={fMidX - 10}
-              y={fMidY - 6}
-              width={20}
-              height={12}
+              x={fMidX - 12}
+              y={fMidY - 8}
+              width={24}
+              height={16}
               fill="white"
               stroke={color}
               strokeWidth={1.5}
+              rx={2}
             />
             
             <line 
-              x1={fMidX - 8} 
+              x1={fMidX - 10} 
               y1={fMidY} 
-              x2={fMidX + 8} 
+              x2={fMidX + 10} 
               y2={fMidY} 
               stroke={color} 
-              strokeWidth={1}
-              strokeDasharray={status.toLowerCase() === "open" ? "1,1" : "none"}
+              strokeWidth={1.5}
+              strokeDasharray={status.toLowerCase() === "open" ? "2,1" : "none"}
             />
             
             <line 
-              x1={fMidX + 10} 
+              x1={fMidX + 12} 
               y1={fMidY} 
               x2={targetX} 
               y2={targetY} 
@@ -451,15 +805,271 @@ export function SingleLineDiagram() {
       case "line":
         // IEC 60617: 3-phase line (represented as single thick line)
         return (
-          <line 
-            x1={sourceX} 
-            y1={sourceY} 
-            x2={targetX} 
-            y2={targetY} 
-            stroke={color} 
-            strokeWidth={3}
-            strokeLinecap="round"
-          />
+          <g>
+            <line 
+              x1={sourceX} 
+              y1={sourceY} 
+              x2={targetX} 
+              y2={targetY} 
+              stroke={color} 
+              strokeWidth={3}
+              strokeLinecap="round"
+            />
+            
+            {/* Direction arrow for power flow */}
+            <path
+              d={`M ${midX-5},${midY-5} L ${midX+5},${midY} L ${midX-5},${midY+5} Z`}
+              fill={color}
+              stroke="none"
+              transform={`rotate(${angle}, ${midX}, ${midY})`}
+            />
+          </g>
+        );
+      case "overhead_line":
+        // Overhead line with poles indication
+        const lineLength = Math.sqrt(Math.pow(targetX - sourceX, 2) + Math.pow(targetY - sourceY, 2));
+        const numPoles = Math.floor(lineLength / 50) + 1; // Spacing poles roughly
+        const dx = (targetX - sourceX) / numPoles;
+        const dy = (targetY - sourceY) / numPoles;
+        
+        return (
+          <g>
+            <line 
+              x1={sourceX} 
+              y1={sourceY} 
+              x2={targetX} 
+              y2={targetY} 
+              stroke={color} 
+              strokeWidth={2.5}
+              strokeDasharray="7,3"
+            />
+            
+            {/* Poles */}
+            {Array.from({ length: numPoles - 1 }, (_, i) => {
+              const poleX = sourceX + dx * (i + 1);
+              const poleY = sourceY + dy * (i + 1);
+              return (
+                <g key={`pole-${i}`}>
+                  <line 
+                    x1={poleX-5} 
+                    y1={poleY-5} 
+                    x2={poleX+5} 
+                    y2={poleY+5} 
+                    stroke={color} 
+                    strokeWidth={1.5}
+                  />
+                  <line 
+                    x1={poleX-5} 
+                    y1={poleY+5} 
+                    x2={poleX+5} 
+                    y2={poleY-5} 
+                    stroke={color} 
+                    strokeWidth={1.5}
+                  />
+                </g>
+              );
+            })}
+          </g>
+        );
+      case "underground_cable":
+        // Underground cable line
+        return (
+          <g>
+            <line 
+              x1={sourceX} 
+              y1={sourceY} 
+              x2={targetX} 
+              y2={targetY} 
+              stroke={color} 
+              strokeWidth={3}
+              strokeDasharray="10,4"
+            />
+            
+            {/* Underground indication at midpoint */}
+            <circle
+              cx={midX}
+              cy={midY}
+              r={4}
+              fill="white"
+              stroke={color}
+              strokeWidth={1}
+            />
+            <text
+              x={midX}
+              y={midY + 3}
+              fontSize={6}
+              textAnchor="middle"
+              fill={color}
+            >
+              U
+            </text>
+          </g>
+        );
+      case "current_transformer":
+        // IEC 60617: Current transformer symbol
+        const ctMidX = midX;
+        const ctMidY = midY;
+        
+        return (
+          <g>
+            <line 
+              x1={sourceX} 
+              y1={sourceY} 
+              x2={ctMidX - 15} 
+              y2={ctMidY} 
+              stroke={color} 
+              strokeWidth={2}
+            />
+            
+            {/* CT primary (straight line) */}
+            <line 
+              x1={ctMidX - 15} 
+              y1={ctMidY} 
+              x2={ctMidX + 15} 
+              y2={ctMidY} 
+              stroke={color} 
+              strokeWidth={2.5}
+            />
+            
+            {/* CT secondary (circle) */}
+            <circle 
+              cx={ctMidX} 
+              cy={ctMidY + 10} 
+              r={8} 
+              fill="white" 
+              stroke={color} 
+              strokeWidth={1.5}
+            />
+            
+            {/* Connection from primary to secondary */}
+            <line 
+              x1={ctMidX} 
+              y1={ctMidY} 
+              x2={ctMidX} 
+              y2={ctMidY + 2} 
+              stroke={color} 
+              strokeWidth={1}
+            />
+            
+            <line 
+              x1={ctMidX + 15} 
+              y1={ctMidY} 
+              x2={targetX} 
+              y2={targetY} 
+              stroke={color} 
+              strokeWidth={2}
+            />
+            
+            {/* CT label */}
+            <text
+              x={ctMidX}
+              y={ctMidY + 12}
+              fontSize={6}
+              textAnchor="middle"
+              fill={color}
+            >
+              CT
+            </text>
+          </g>
+        );
+      case "voltage_transformer":
+        // IEC 60617: Voltage transformer symbol
+        const vtMidX = midX;
+        const vtMidY = midY;
+        
+        return (
+          <g>
+            <line 
+              x1={sourceX} 
+              y1={sourceY} 
+              x2={vtMidX - 8} 
+              y2={vtMidY} 
+              stroke={color} 
+              strokeWidth={2}
+            />
+            
+            {/* VT primary and secondary winding circles */}
+            <circle 
+              cx={vtMidX - 8} 
+              cy={vtMidY} 
+              r={8} 
+              fill="white" 
+              stroke={color} 
+              strokeWidth={1.5}
+            />
+            <circle 
+              cx={vtMidX + 8} 
+              cy={vtMidY} 
+              r={8} 
+              fill="white" 
+              stroke={color} 
+              strokeWidth={1.5}
+            />
+            
+            <line 
+              x1={vtMidX + 8} 
+              y1={vtMidY} 
+              x2={targetX} 
+              y2={targetY} 
+              stroke={color} 
+              strokeWidth={2}
+            />
+            
+            {/* VT label */}
+            <text
+              x={vtMidX}
+              y={vtMidY - 12}
+              fontSize={6}
+              textAnchor="middle"
+              fill={color}
+            >
+              VT
+            </text>
+          </g>
+        );
+      case "surge_arrester":
+        // IEC 60617: Surge arrester / lightning arrester
+        const saMidX = midX;
+        const saMidY = midY;
+        
+        return (
+          <g>
+            <line 
+              x1={sourceX} 
+              y1={sourceY} 
+              x2={saMidX} 
+              y2={saMidY - 10} 
+              stroke={color} 
+              strokeWidth={2}
+            />
+            
+            {/* Surge arrester symbol - zigzag inside a box */}
+            <rect
+              x={saMidX - 10}
+              y={saMidY - 10}
+              width={20}
+              height={20}
+              fill="white"
+              stroke={color}
+              strokeWidth={1.5}
+            />
+            
+            <path 
+              d={`M ${saMidX-8},${saMidY-5} L ${saMidX-3},${saMidY+5} L ${saMidX+3},${saMidY-5} L ${saMidX+8},${saMidY+5}`} 
+              stroke={color} 
+              strokeWidth={1.5} 
+              fill="none" 
+            />
+            
+            <line 
+              x1={saMidX} 
+              y1={saMidY + 10} 
+              x2={targetX} 
+              y2={targetY} 
+              stroke={color} 
+              strokeWidth={2}
+            />
+          </g>
         );
       default:
         // Simple line for other connection types

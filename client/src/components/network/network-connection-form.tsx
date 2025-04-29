@@ -199,8 +199,17 @@ export function NetworkConnectionForm({
                 <SelectContent>
                   <SelectItem value="Line">Line</SelectItem>
                   <SelectItem value="Transformer">Transformer</SelectItem>
+                  <SelectItem value="AutoTransformer">Auto-transformer</SelectItem>
                   <SelectItem value="Circuit Breaker">Circuit Breaker</SelectItem>
+                  <SelectItem value="Recloser">Recloser</SelectItem>
                   <SelectItem value="Disconnector">Disconnector</SelectItem>
+                  <SelectItem value="Earthing_Switch">Earthing Switch</SelectItem>
+                  <SelectItem value="Fuse">Fuse</SelectItem>
+                  <SelectItem value="Overhead_Line">Overhead Line</SelectItem>
+                  <SelectItem value="Underground_Cable">Underground Cable</SelectItem>
+                  <SelectItem value="Current_Transformer">Current Transformer</SelectItem>
+                  <SelectItem value="Voltage_Transformer">Voltage Transformer</SelectItem>
+                  <SelectItem value="Surge_Arrester">Surge Arrester</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />

@@ -159,7 +159,17 @@ export function NetworkNodeForm({ node, onSuccess, onCancel }: NetworkNodeFormPr
                 <SelectContent>
                   <SelectItem value="Bus">Bus</SelectItem>
                   <SelectItem value="Junction">Junction</SelectItem>
-                  <SelectItem value="Connection Point">Connection Point</SelectItem>
+                  <SelectItem value="Generator">Generator</SelectItem>
+                  <SelectItem value="Transformer">Transformer</SelectItem>
+                  <SelectItem value="Load">Load</SelectItem>
+                  <SelectItem value="Capacitor">Capacitor</SelectItem>
+                  <SelectItem value="Substation">Substation</SelectItem>
+                  <SelectItem value="Inductor">Inductor</SelectItem>
+                  <SelectItem value="Motor">Motor</SelectItem>
+                  <SelectItem value="Battery">Battery</SelectItem>
+                  <SelectItem value="Fuse">Fuse</SelectItem>
+                  <SelectItem value="Solar">Solar Panel</SelectItem>
+                  <SelectItem value="GroundConnection">Ground Connection</SelectItem>
                 </SelectContent>
               </Select>
               <FormMessage />
