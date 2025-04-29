@@ -472,6 +472,8 @@ export function SingleLineDiagram() {
       deleteNodeMutation.mutate(selectedNode.id);
     } else if (selectedConnection) {
       deleteConnectionMutation.mutate(selectedConnection.id);
+    } else if (selectedMeter) {
+      deleteMeterMutation.mutate(selectedMeter.id);
     }
     setDeleteDialogOpen(false);
   };
@@ -538,7 +540,7 @@ export function SingleLineDiagram() {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  disabled={!selectedNode && !selectedConnection}
+                  disabled={!selectedNode && !selectedConnection && !selectedMeter}
                   onClick={() => setDialogOpen(true)}
                 >
                   <Edit className="h-4 w-4 mr-2" />
@@ -547,7 +549,7 @@ export function SingleLineDiagram() {
                 <Button 
                   variant="outline" 
                   size="sm"
-                  disabled={!selectedNode && !selectedConnection}
+                  disabled={!selectedNode && !selectedConnection && !selectedMeter}
                   onClick={() => setDeleteDialogOpen(true)}
                 >
                   <Trash2 className="h-4 w-4 mr-2" />
@@ -560,11 +562,26 @@ export function SingleLineDiagram() {
                     setDefaultTab("connection");
                     setSelectedNode(undefined);
                     setSelectedConnection(undefined);
+                    setSelectedMeter(undefined);
                     setDialogOpen(true);
                   }}
                 >
                   <FileSymlink className="h-4 w-4 mr-2" />
                   Add Connection
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setDefaultTab("meter");
+                    setSelectedNode(undefined);
+                    setSelectedConnection(undefined);
+                    setSelectedMeter(undefined);
+                    setDialogOpen(true);
+                  }}
+                >
+                  <Gauge className="h-4 w-4 mr-2" />
+                  Add Meter
                 </Button>
               </div>
             </div>
@@ -635,6 +652,28 @@ export function SingleLineDiagram() {
                     )}
                   </g>
                 ))}
+                
+                {/* Meters */}
+                {meters && meters.map((meter, index) => (
+                  <g
+                    key={`meter-${index}`}
+                    className={selectedMeter?.id === meter.id ? "opacity-70" : ""}
+                  >
+                    {getMeterSymbol(meter)}
+                    {/* Show selection indicator if selected */}
+                    {selectedMeter?.id === meter.id && (
+                      <circle 
+                        cx={meter.x + (meter.direction === "in" ? -20 : 20)}
+                        cy={meter.y}
+                        r={14} 
+                        fill="none" 
+                        stroke="#2563EB" 
+                        strokeWidth={2}
+                        strokeDasharray="4 2"
+                      />
+                    )}
+                  </g>
+                ))}
               </g>
             </svg>
 
@@ -643,8 +682,10 @@ export function SingleLineDiagram() {
                 open={dialogOpen}
                 onOpenChange={setDialogOpen}
                 nodes={diagramNodes}
+                connections={diagramConnections}
                 selectedNode={selectedNode}
                 selectedConnection={selectedConnection}
+                selectedMeter={selectedMeter}
                 defaultTab={defaultTab}
               />
             )}
@@ -657,7 +698,9 @@ export function SingleLineDiagram() {
                     <AlertDialogDescription>
                       {selectedNode ? 
                         "This will delete the selected network node and all its connections. This action cannot be undone." 
-                        : "This will delete the selected network connection. This action cannot be undone."}
+                        : selectedConnection ?
+                        "This will delete the selected network connection. This action cannot be undone."
+                        : "This will delete the selected energy meter. This action cannot be undone."}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
