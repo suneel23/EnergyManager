@@ -15,6 +15,149 @@ import {
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes
   setupAuth(app);
+  
+  // System logs routes
+  app.get("/api/logs", async (req: Request, res: Response) => {
+    try {
+      // In a real system, these would come from a database or log files
+      // For now, we'll generate mock logs
+      const { timeRange, component, severity } = req.query;
+      
+      // Mock log data generation
+      const now = new Date();
+      const daysBack = timeRange === "24h" ? 1 : timeRange === "7d" ? 7 : 30;
+      const startDate = new Date(now.getTime() - daysBack * 24 * 60 * 60 * 1000);
+      
+      const components = ["network", "equipment", "auth", "database", "api", "scheduler"];
+      const sources = ["server", "client", "database", "external-api"];
+      const severities = ["info", "warning", "error", "critical"];
+      const messages = [
+        "System started successfully",
+        "Connection established",
+        "User login attempt",
+        "Authentication failed",
+        "Database connection timeout",
+        "API rate limit exceeded",
+        "Equipment status changed",
+        "Measurement value out of range",
+        "Node communication lost",
+        "Backup completed",
+        "Configuration updated",
+        "Scheduled maintenance started",
+        "Memory usage high"
+      ];
+      
+      const logs = Array.from({ length: 200 }, (_, i) => {
+        const randomDate = new Date(startDate.getTime() + Math.random() * (now.getTime() - startDate.getTime()));
+        const randomSeverity = severities[Math.floor(Math.random() * severities.length)];
+        
+        return {
+          id: i + 1,
+          timestamp: randomDate.toISOString(),
+          component: components[Math.floor(Math.random() * components.length)],
+          severity: randomSeverity,
+          message: messages[Math.floor(Math.random() * messages.length)],
+          source: sources[Math.floor(Math.random() * sources.length)],
+          details: randomSeverity === "error" || randomSeverity === "critical" 
+            ? "Error stack trace or additional diagnostic information would appear here."
+            : undefined
+        };
+      });
+      
+      // Sort by timestamp (newest first)
+      logs.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+      
+      // Apply filters if provided
+      let filteredLogs = logs;
+      if (component && component !== "all") {
+        filteredLogs = filteredLogs.filter(log => log.component === component);
+      }
+      if (severity && severity !== "all") {
+        filteredLogs = filteredLogs.filter(log => log.severity === severity);
+      }
+      
+      res.json(filteredLogs);
+    } catch (error) {
+      console.error("Error fetching logs:", error);
+      res.status(500).json({ error: "Failed to fetch system logs" });
+    }
+  });
+  
+  // Energy reports routes
+  app.get("/api/reports/energy", async (req: Request, res: Response) => {
+    try {
+      const { type, timeRange } = req.query;
+      
+      // In a real system, these would come from measurements and calculations
+      // For now, we'll generate mock data
+      const now = new Date();
+      const report = {
+        id: "report-1",
+        name: "Energy Consumption Report",
+        description: "Detailed energy consumption and generation data",
+        generatedAt: now.toISOString(),
+        timeRange: {
+          from: new Date(now.getFullYear(), now.getMonth(), 1).toISOString(),
+          to: now.toISOString()
+        },
+        totalConsumption: 12450.75,
+        totalGeneration: 4250.30,
+        peakDemand: 875.25,
+        equipmentData: []
+      };
+      
+      // Mock equipment data
+      const equipmentList = [
+        { id: "EQ-1023", name: "Transformer TR-101" },
+        { id: "EQ-1024", name: "Main Switchgear" },
+        { id: "EQ-1025", name: "Solar Array" },
+        { id: "EQ-1026", name: "Battery Storage" },
+        { id: "EQ-1027", name: "Distribution Panel DP-01" }
+      ];
+      
+      // Generate data for each equipment
+      equipmentList.forEach(eq => {
+        const dataPoints = [];
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        
+        for (let day = 1; day <= daysInMonth; day++) {
+          const date = new Date(now.getFullYear(), now.getMonth(), day);
+          
+          // Skip future dates
+          if (date > now) continue;
+          
+          // Add consumption data
+          dataPoints.push({
+            timestamp: new Date(date.getFullYear(), date.getMonth(), day, 12, 0, 0).toISOString(),
+            value: eq.id === "EQ-1025" ? 0 : Math.random() * 100 + 50,
+            type: "consumption",
+            unit: "kWh"
+          });
+          
+          // Add generation data only for the solar array
+          if (eq.id === "EQ-1025") {
+            dataPoints.push({
+              timestamp: new Date(date.getFullYear(), date.getMonth(), day, 12, 0, 0).toISOString(),
+              value: Math.random() * 200 + 100,
+              type: "generation",
+              unit: "kWh"
+            });
+          }
+        }
+        
+        report.equipmentData.push({
+          equipmentId: eq.id,
+          name: eq.name,
+          data: dataPoints
+        });
+      });
+      
+      res.json([report]);
+    } catch (error) {
+      console.error("Error generating energy report:", error);
+      res.status(500).json({ error: "Failed to generate energy report" });
+    }
+  });
 
   // Equipment Management
   app.get("/api/equipment", async (req: Request, res: Response) => {
