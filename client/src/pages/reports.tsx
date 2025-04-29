@@ -5,6 +5,7 @@ import { LogAnalyzer } from "@/components/reports/log-analyzer";
 import { EnergyReports } from "@/components/reports/energy-reports";
 import { PredictiveAnalysis } from "@/components/reports/predictive-analysis";
 import { FrequencyReports } from "@/components/reports/frequency-reports";
+import { ReportGenerator } from "@/components/reports/report-generator";
 import { Helmet } from "react-helmet";
 import { 
   AlertCircle, 
@@ -13,11 +14,12 @@ import {
   CalendarClock, 
   FileText, 
   PieChart, 
-  Zap 
+  Zap,
+  FileOutput
 } from "lucide-react";
 
 export default function ReportsPage() {
-  const [activeTab, setActiveTab] = useState("frequency");
+  const [activeTab, setActiveTab] = useState("generator");
   
   return (
     <AppLayout>
@@ -30,13 +32,18 @@ export default function ReportsPage() {
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Reports & Analytics</h1>
             <p className="text-muted-foreground">
-              View KPI reports, system logs, energy reports, and AI insights
+              Generate standardized reports, view system logs, and analyze energy data
             </p>
           </div>
         </div>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid grid-cols-3 md:grid-cols-6 w-full md:w-auto">
+          <TabsList className="grid grid-cols-4 md:grid-cols-7 w-full md:w-auto">
+            <TabsTrigger value="generator" className="flex items-center gap-2">
+              <FileOutput className="h-4 w-4" />
+              <span className="hidden md:inline">Report Generator</span>
+              <span className="inline md:hidden">Generate</span>
+            </TabsTrigger>
             <TabsTrigger value="frequency" className="flex items-center gap-2">
               <CalendarClock className="h-4 w-4" />
               <span className="hidden md:inline">KPI Reports</span>
@@ -68,6 +75,10 @@ export default function ReportsPage() {
               <span className="inline md:hidden">Analytics</span>
             </TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="generator" className="mt-6">
+            <ReportGenerator />
+          </TabsContent>
           
           <TabsContent value="frequency" className="mt-6">
             <FrequencyReports />
