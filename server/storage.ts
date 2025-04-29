@@ -50,6 +50,8 @@ export interface IStorage {
   createNetworkConnection(connection: InsertNetworkConnection): Promise<NetworkConnection>;
   updateNetworkNode(id: number, node: Partial<NetworkNode>): Promise<NetworkNode | undefined>;
   updateNetworkConnection(id: number, connection: Partial<NetworkConnection>): Promise<NetworkConnection | undefined>;
+  deleteNetworkNode(id: number): Promise<boolean>;
+  deleteNetworkConnection(id: number): Promise<boolean>;
   
   // Session management
   sessionStore: session.SessionStore;
@@ -320,6 +322,34 @@ export class MemStorage implements IStorage {
     const updatedConnection = { ...connection, ...connectionData };
     this.networkConnectionsMap.set(id, updatedConnection);
     return updatedConnection;
+  }
+
+  async deleteNetworkNode(id: number): Promise<boolean> {
+    // First check if the node exists
+    if (!this.networkNodesMap.has(id)) {
+      return false;
+    }
+    
+    // Get the node to access its nodeId
+    const node = this.networkNodesMap.get(id);
+    if (!node) return false;
+    
+    // Find any connections that use this node
+    const connectionsToRemove = Array.from(this.networkConnectionsMap.values())
+      .filter(conn => conn.sourceNodeId === node.nodeId || conn.targetNodeId === node.nodeId)
+      .map(conn => conn.id);
+      
+    // Remove those connections first
+    for (const connId of connectionsToRemove) {
+      this.networkConnectionsMap.delete(connId);
+    }
+    
+    // Remove the node
+    return this.networkNodesMap.delete(id);
+  }
+  
+  async deleteNetworkConnection(id: number): Promise<boolean> {
+    return this.networkConnectionsMap.delete(id);
   }
 
   // Initialize demo data

@@ -6,7 +6,9 @@ import {
   insertEquipmentSchema, 
   insertWorkPermitSchema, 
   insertEnergyMeasurementSchema, 
-  insertAlertSchema 
+  insertAlertSchema,
+  insertNetworkNodeSchema,
+  insertNetworkConnectionSchema 
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -186,6 +188,82 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({ nodes, connections });
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch network data" });
+    }
+  });
+  
+  // Network Node Management
+  app.post("/api/network/nodes", async (req: Request, res: Response) => {
+    try {
+      const validatedData = insertNetworkNodeSchema.parse(req.body);
+      const node = await storage.createNetworkNode(validatedData);
+      res.status(201).json(node);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid network node data", error });
+    }
+  });
+  
+  app.put("/api/network/nodes/:id", async (req: Request, res: Response) => {
+    try {
+      const nodeId = parseInt(req.params.id);
+      const updatedNode = await storage.updateNetworkNode(nodeId, req.body);
+      if (!updatedNode) {
+        return res.status(404).json({ message: "Network node not found" });
+      }
+      res.json(updatedNode);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to update network node", error });
+    }
+  });
+  
+  // Network Connection Management
+  app.post("/api/network/connections", async (req: Request, res: Response) => {
+    try {
+      const validatedData = insertNetworkConnectionSchema.parse(req.body);
+      const connection = await storage.createNetworkConnection(validatedData);
+      res.status(201).json(connection);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid network connection data", error });
+    }
+  });
+  
+  app.put("/api/network/connections/:id", async (req: Request, res: Response) => {
+    try {
+      const connectionId = parseInt(req.params.id);
+      const updatedConnection = await storage.updateNetworkConnection(connectionId, req.body);
+      if (!updatedConnection) {
+        return res.status(404).json({ message: "Network connection not found" });
+      }
+      res.json(updatedConnection);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to update network connection", error });
+    }
+  });
+  
+  // Delete network node (and all its connections)
+  app.delete("/api/network/nodes/:id", async (req: Request, res: Response) => {
+    try {
+      const nodeId = parseInt(req.params.id);
+      const success = await storage.deleteNetworkNode(nodeId);
+      if (!success) {
+        return res.status(404).json({ message: "Network node not found" });
+      }
+      res.status(200).json({ success: true, message: "Network node and associated connections deleted" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete network node", error });
+    }
+  });
+  
+  // Delete network connection
+  app.delete("/api/network/connections/:id", async (req: Request, res: Response) => {
+    try {
+      const connectionId = parseInt(req.params.id);
+      const success = await storage.deleteNetworkConnection(connectionId);
+      if (!success) {
+        return res.status(404).json({ message: "Network connection not found" });
+      }
+      res.status(200).json({ success: true, message: "Network connection deleted" });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to delete network connection", error });
     }
   });
 
