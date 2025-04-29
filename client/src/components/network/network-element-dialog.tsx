@@ -16,17 +16,21 @@ interface NetworkElementDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   nodes: NetworkNode[];
+  connections?: NetworkConnection[];
   selectedNode?: NetworkNode;
   selectedConnection?: NetworkConnection;
-  defaultTab?: "node" | "connection";
+  selectedMeter?: NetworkMeter;
+  defaultTab?: "node" | "connection" | "meter";
 }
 
 export function NetworkElementDialog({
   open,
   onOpenChange,
   nodes,
+  connections = [],
   selectedNode,
   selectedConnection,
+  selectedMeter,
   defaultTab = "node",
 }: NetworkElementDialogProps) {
   const handleSuccess = () => {
@@ -40,16 +44,17 @@ export function NetworkElementDialog({
           <DialogTitle>
             {selectedNode ? "Edit Network Node" : 
              selectedConnection ? "Edit Network Connection" : 
+             selectedMeter ? "Edit Energy Meter" :
              "Add Network Element"}
           </DialogTitle>
           <DialogDescription>
-            {selectedNode || selectedConnection ? 
+            {selectedNode || selectedConnection || selectedMeter ? 
               "Edit the properties of this network element." : 
-              "Add a new node or connection to your network diagram."}
+              "Add a new node, connection or meter to your network diagram."}
           </DialogDescription>
         </DialogHeader>
 
-        {(selectedNode || selectedConnection) ? (
+        {(selectedNode || selectedConnection || selectedMeter) ? (
           // Edit mode - show only the relevant form
           <>
             {selectedNode && (
@@ -67,13 +72,22 @@ export function NetworkElementDialog({
                 onCancel={() => onOpenChange(false)} 
               />
             )}
+            {selectedMeter && (
+              <NetworkMeterForm
+                selectedMeter={selectedMeter}
+                nodes={nodes}
+                connections={connections}
+                onSuccess={handleSuccess}
+              />
+            )}
           </>
         ) : (
-          // Create mode - show tabs for node and connection
+          // Create mode - show tabs for node, connection, and meter
           <Tabs defaultValue={defaultTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="node">Add Node</TabsTrigger>
               <TabsTrigger value="connection">Add Connection</TabsTrigger>
+              <TabsTrigger value="meter">Add Meter</TabsTrigger>
             </TabsList>
             <TabsContent value="node" className="pt-4">
               <NetworkNodeForm 
@@ -86,6 +100,13 @@ export function NetworkElementDialog({
                 nodes={nodes}
                 onSuccess={handleSuccess} 
                 onCancel={() => onOpenChange(false)} 
+              />
+            </TabsContent>
+            <TabsContent value="meter" className="pt-4">
+              <NetworkMeterForm
+                nodes={nodes}
+                connections={connections}
+                onSuccess={handleSuccess}
               />
             </TabsContent>
           </Tabs>

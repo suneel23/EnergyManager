@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { NetworkNode, NetworkConnection } from "@shared/schema";
+import { NetworkNode, NetworkConnection, NetworkMeter } from "@shared/schema";
 import { 
   Circle, 
   Plus, 
@@ -13,7 +13,9 @@ import {
   Edit, 
   Trash2, 
   PlusCircle,
-  FileSymlink
+  FileSymlink,
+  Activity,
+  Gauge
 } from "lucide-react";
 import { NetworkElementDialog } from "./network-element-dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -51,12 +53,17 @@ export function SingleLineDiagram() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedNode, setSelectedNode] = useState<NetworkNode | undefined>();
   const [selectedConnection, setSelectedConnection] = useState<NetworkConnection | undefined>();
-  const [defaultTab, setDefaultTab] = useState<"node" | "connection">("node");
+  const [defaultTab, setDefaultTab] = useState<"node" | "connection" | "meter">("node");
+  const [selectedMeter, setSelectedMeter] = useState<NetworkMeter | undefined>();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   
   const { data, isLoading } = useQuery<{nodes: NetworkNode[], connections: NetworkConnection[]}>({
     queryKey: ["/api/network"],
+  });
+  
+  const { data: meters, isLoading: metersLoading } = useQuery<NetworkMeter[]>({
+    queryKey: ["/api/network/meters"],
   });
 
   // Prepare diagram data
@@ -360,12 +367,87 @@ export function SingleLineDiagram() {
       });
     },
   });
+  
+  // Delete meter mutation
+  const deleteMeterMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("DELETE", `/api/network/meters/${id}`);
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Network meter deleted",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/network/meters"] });
+      setSelectedMeter(undefined);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete network meter: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+  
+  // Get meter symbol based on type, direction and value
+  const getMeterSymbol = (meter: NetworkMeter) => {
+    const { x, y, type, status, direction, value, unit } = meter;
+    const color = getStatusColor(status);
+    const textColor = status.toLowerCase() === "fault" ? "#D32F2F" : "#333333";
+    const radius = 12;
+    
+    // Calculate position offset based on direction
+    const xOffset = direction === "in" ? -20 : 20;
+    const yOffset = 0;
+    
+    return (
+      <g 
+        className="meter-symbol" 
+        transform={`translate(${x + xOffset}, ${y + yOffset})`}
+        onClick={(e) => handleMeterClick(e, meter)}
+      >
+        <circle 
+          cx={0} 
+          cy={0} 
+          r={radius} 
+          fill="white" 
+          stroke={color} 
+          strokeWidth={2}
+        />
+        {type === "power" && <Gauge className="meter-icon" x={-8} y={-8} width={16} height={16} color={color} />}
+        {type === "current" && <Activity className="meter-icon" x={-8} y={-8} width={16} height={16} color={color} />}
+        
+        <text 
+          x={0} 
+          y={radius + 14} 
+          textAnchor="middle" 
+          fontSize={10} 
+          fill={textColor}
+        >
+          {value} {unit}
+        </text>
+        
+        <text 
+          x={0} 
+          y={radius + 26} 
+          textAnchor="middle" 
+          fontSize={8} 
+          fill="#666666"
+        >
+          {direction === "in" ? "→" : "←"} {meter.name}
+        </text>
+      </g>
+    );
+  };
 
   // Handle node click - just select it without opening dialog immediately
   const handleNodeClick = (e: React.MouseEvent, node: NetworkNode) => {
     e.stopPropagation(); // Prevent SVG drag from happening
     setSelectedNode(node);
     setSelectedConnection(undefined);
+    setSelectedMeter(undefined);
   };
 
   // Handle connection click - just select it without opening dialog immediately
@@ -373,6 +455,15 @@ export function SingleLineDiagram() {
     e.stopPropagation(); // Prevent SVG drag from happening
     setSelectedConnection(connection);
     setSelectedNode(undefined);
+    setSelectedMeter(undefined);
+  };
+  
+  // Handle meter click - select the meter
+  const handleMeterClick = (e: React.MouseEvent, meter: NetworkMeter) => {
+    e.stopPropagation(); // Prevent SVG drag from happening
+    setSelectedMeter(meter);
+    setSelectedNode(undefined);
+    setSelectedConnection(undefined);
   };
 
   // Handle delete confirmation
