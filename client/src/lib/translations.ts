@@ -39,6 +39,17 @@ export type TranslationKey =
   | 'report_configuration'
   | 'based_on'
   | 'and'
+  | 'operational'
+  | 'maintenance'
+  | 'fault'
+  | 'equipment_inventory'
+  | 'search_equipment'
+  | 'add_equipment'
+  | 'no_equipment_found'
+  | 'showing'
+  | 'to'
+  | 'of'
+  | 'results'
   
   // Dashboard
   | 'overview'
@@ -176,6 +187,16 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     report_configuration: 'Report Configuration',
     based_on: 'based on',
     and: 'and',
+    operational: 'Operational',
+    maintenance: 'Maintenance',
+    fault: 'Fault',
+    equipment_inventory: 'Equipment Inventory',
+    search_equipment: 'Search equipment...',
+    no_equipment_found: 'No equipment found',
+    showing: 'Showing',
+    to: 'to',
+    of: 'of',
+    results: 'results',
     
     // Dashboard
     overview: 'Overview',
@@ -188,7 +209,6 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     welcome_message: 'Welcome to the Energy Management System',
     
     // Equipment
-    add_equipment: 'Add Equipment',
     equipment_id: 'Equipment ID',
     equipment_type: 'Equipment Type',
     equipment_name: 'Equipment Name',
@@ -238,7 +258,6 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     schedule_generation: 'Schedule Generation',
     generated_reports: 'Generated Reports',
     saved_reports: 'Saved Reports',
-    operational: 'Operational',
     commercial: 'Commercial',
     financial: 'Financial',
     safety: 'Safety',

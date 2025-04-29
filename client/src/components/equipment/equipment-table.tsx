@@ -21,8 +21,10 @@ import {
   Loader2
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useLanguage } from "@/hooks/use-language";
 
 export function EquipmentTable() {
+  const { t } = useLanguage();
   const [search, setSearch] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 5;
@@ -50,11 +52,11 @@ export function EquipmentTable() {
   const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
       case 'operational':
-        return <Badge variant="outline" className="bg-green-500 bg-opacity-10 text-green-600">Operational</Badge>;
+        return <Badge variant="outline" className="bg-green-500 bg-opacity-10 text-green-600">{t('operational')}</Badge>;
       case 'maintenance':
-        return <Badge variant="outline" className="bg-amber-500 bg-opacity-10 text-amber-600">Maintenance</Badge>;
+        return <Badge variant="outline" className="bg-amber-500 bg-opacity-10 text-amber-600">{t('maintenance')}</Badge>;
       case 'fault':
-        return <Badge variant="outline" className="bg-red-500 bg-opacity-10 text-red-600">Fault</Badge>;
+        return <Badge variant="outline" className="bg-red-500 bg-opacity-10 text-red-600">{t('fault')}</Badge>;
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
