@@ -77,14 +77,30 @@ const reliabilityMetricsData = [
   { name: "Jun", SAIDI: 3.5, SAIFI: 0.9, CAIDI: 3.9 },
 ];
 
+import { Helmet } from "react-helmet";
+import { PerformanceMetrics } from "@/components/analytics/performance-metrics";
+
 export default function AnalyticsPage() {
   const [timeRange, setTimeRange] = useState("24h");
 
   return (
     <AppLayout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-neutral-800">Analytics Dashboard</h1>
+      <Helmet>
+        <title>Analytics | Energy Management System</title>
+      </Helmet>
+      
+      <div className="space-y-8 p-6">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight mb-2">Analytics Dashboard</h1>
+          <p className="text-muted-foreground">
+            Analyze energy data, performance metrics, and system efficiency
+          </p>
+        </div>
+        
+        <PerformanceMetrics />
+        
+        <div className="flex justify-between items-center mt-8">
+          <h2 className="text-xl font-semibold">Historical Analytics</h2>
           <Select defaultValue={timeRange} onValueChange={setTimeRange}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Select time range" />

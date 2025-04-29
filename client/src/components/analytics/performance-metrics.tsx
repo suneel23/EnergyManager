@@ -224,7 +224,7 @@ export function PerformanceMetrics() {
     // Special case for pie chart
     if (activeTab === "loadDistribution") {
       return {
-        labels: chartData.map(item => item.category),
+        labels: chartData.map(item => item.category || ""),  // Ensure no undefined values
         datasets: [
           {
             label: "Distribution",
@@ -238,7 +238,7 @@ export function PerformanceMetrics() {
     
     // Line, bar, area charts
     return {
-      labels: chartData.map(item => item.date),
+      labels: chartData.map(item => item.date || ""),  // Ensure no undefined values
       datasets: [
         {
           label: chartTitle,
@@ -298,7 +298,14 @@ export function PerformanceMetrics() {
                   mode="range"
                   defaultMonth={dateRange.from}
                   selected={dateRange}
-                  onSelect={(range) => range && setDateRange(range)}
+                  onSelect={(range) => {
+                    if (range && range.from && range.to) {
+                      setDateRange({
+                        from: range.from,
+                        to: range.to || range.from
+                      });
+                    }
+                  }}
                   numberOfMonths={2}
                 />
               </PopoverContent>
