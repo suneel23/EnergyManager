@@ -31,6 +31,14 @@ export type TranslationKey =
   | 'next'
   | 'preview'
   | 'generate'
+  | 'title'
+  | 'description'
+  | 'enter'
+  | 'report'
+  | 'saved'
+  | 'report_configuration'
+  | 'based_on'
+  | 'and'
   
   // Dashboard
   | 'overview'
@@ -160,6 +168,14 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     next: 'Next',
     preview: 'Preview',
     generate: 'Generate',
+    title: 'Title',
+    description: 'Description',
+    enter: 'Enter',
+    report: 'Report',
+    saved: 'Saved',
+    report_configuration: 'Report Configuration',
+    based_on: 'based on',
+    and: 'and',
     
     // Dashboard
     overview: 'Overview',
@@ -289,6 +305,14 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     next: 'Далее',
     preview: 'Предпросмотр',
     generate: 'Генерировать',
+    title: 'Заголовок',
+    description: 'Описание',
+    enter: 'Введите',
+    report: 'Отчет',
+    saved: 'Сохраненный',
+    report_configuration: 'Конфигурация отчета',
+    based_on: 'на основе',
+    and: 'и',
     
     // Dashboard
     overview: 'Обзор',
@@ -418,6 +442,14 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     next: 'Навбатӣ',
     preview: 'Пешнамоиш',
     generate: 'Эҷод кардан',
+    title: 'Сарлавҳа',
+    description: 'Тавсиф',
+    enter: 'Ворид кунед',
+    report: 'Ҳисобот',
+    saved: 'Нигоҳдошташуда',
+    report_configuration: 'Танзимоти ҳисобот',
+    based_on: 'дар асоси',
+    and: 'ва',
     
     // Dashboard
     overview: 'Мурури умумӣ',

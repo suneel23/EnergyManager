@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useLanguage } from "@/hooks/use-language";
 import { useQuery } from "@tanstack/react-query";
 import { 
   Card, 
@@ -92,6 +93,7 @@ interface Metric {
 }
 
 export function ReportGenerator() {
+  const { t } = useLanguage();
   const [reportFormat, setReportFormat] = useState<"pdf" | "excel" | "web">("pdf");
   const [reportType, setReportType] = useState<"monthly" | "quarterly" | "annual" | "custom">("monthly");
   const [reportStandard, setReportStandard] = useState<"ISO-50001" | "IEC-61850" | "IEEE-1366" | "ISO-45001" | "IFRS" | "internal" | "custom">("ISO-50001");
@@ -470,26 +472,26 @@ export function ReportGenerator() {
     <div className="space-y-8">
       <Tabs defaultValue="generate" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="generate">Generate Report</TabsTrigger>
-          <TabsTrigger value="saved">Saved Reports</TabsTrigger>
+          <TabsTrigger value="generate">{t('generate')} {t('report')}</TabsTrigger>
+          <TabsTrigger value="saved">{t('saved')} {t('reports')}</TabsTrigger>
         </TabsList>
         
         <TabsContent value="generate">
           <Card className="mb-6">
             <CardHeader>
-              <CardTitle>Report Configuration</CardTitle>
+              <CardTitle>{t('report_configuration')}</CardTitle>
               <CardDescription>
-                Generate standardized reports based on KPIs and metrics
+                {t('generate')} {t('report_standard')} {t('based_on')} KPIs {t('and')} {t('metrics')}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
               <div className="grid md:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="report-title">Report Title</Label>
+                    <Label htmlFor="report-title">{t('report')} {t('title')}</Label>
                     <Input 
                       id="report-title" 
-                      placeholder="Enter report title" 
+                      placeholder={`${t('enter')} ${t('report')} ${t('title')}`}
                       value={reportTitle}
                       onChange={(e) => setReportTitle(e.target.value)}
                     />
