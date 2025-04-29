@@ -4,11 +4,20 @@ import { AppLayout } from "@/layouts/app-layout";
 import { LogAnalyzer } from "@/components/reports/log-analyzer";
 import { EnergyReports } from "@/components/reports/energy-reports";
 import { PredictiveAnalysis } from "@/components/reports/predictive-analysis";
+import { FrequencyReports } from "@/components/reports/frequency-reports";
 import { Helmet } from "react-helmet";
-import { AlertCircle, BarChart, Brain, FileText, PieChart, Sparkles, Zap } from "lucide-react";
+import { 
+  AlertCircle, 
+  BarChart, 
+  Brain, 
+  CalendarClock, 
+  FileText, 
+  PieChart, 
+  Zap 
+} from "lucide-react";
 
 export default function ReportsPage() {
-  const [activeTab, setActiveTab] = useState("logs");
+  const [activeTab, setActiveTab] = useState("frequency");
   
   return (
     <AppLayout>
@@ -16,18 +25,23 @@ export default function ReportsPage() {
         <title>Reports & Analytics | Energy Management System</title>
       </Helmet>
       
-      <div className="container mx-auto p-4 space-y-4">
+      <div className="container mx-auto p-4 space-y-6">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
           <div>
             <h1 className="text-2xl font-bold tracking-tight">Reports & Analytics</h1>
             <p className="text-muted-foreground">
-              View system logs, energy reports, and analytics insights
+              View KPI reports, system logs, energy reports, and AI insights
             </p>
           </div>
         </div>
         
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid grid-cols-3 md:grid-cols-5 w-full md:w-auto">
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid grid-cols-3 md:grid-cols-6 w-full md:w-auto">
+            <TabsTrigger value="frequency" className="flex items-center gap-2">
+              <CalendarClock className="h-4 w-4" />
+              <span className="hidden md:inline">KPI Reports</span>
+              <span className="inline md:hidden">KPIs</span>
+            </TabsTrigger>
             <TabsTrigger value="logs" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               <span className="hidden md:inline">System Logs</span>
@@ -54,6 +68,10 @@ export default function ReportsPage() {
               <span className="inline md:hidden">Analytics</span>
             </TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="frequency" className="mt-6">
+            <FrequencyReports />
+          </TabsContent>
           
           <TabsContent value="logs" className="mt-6">
             <LogAnalyzer />
@@ -106,7 +124,7 @@ function PerformanceAnalytics() {
           <BarChart className="mx-auto h-12 w-12 text-gray-400 mb-4" />
           <h3 className="text-lg font-medium mb-2">Performance Analytics</h3>
           <p className="text-gray-500 max-w-md">
-            This feature is coming soon. The performance analytics will provide insights 
+            This feature is coming soon. The performance analytics will provide more detailed insights 
             into system efficiency, response times, and operational metrics.
           </p>
         </div>

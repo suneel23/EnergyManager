@@ -4,7 +4,9 @@ import { EnergyFlowChart } from "@/components/dashboard/energy-flow-chart";
 import { CriticalAlerts } from "@/components/dashboard/critical-alerts";
 import { QuickAccess } from "@/components/dashboard/quick-access";
 import { KpiSection } from "@/components/dashboard/kpi-section";
+import { KPIDashboard } from "@/components/dashboard/kpi-dashboard";
 import { Helmet } from "react-helmet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Dashboard() {
   return (
@@ -24,8 +26,19 @@ export default function Dashboard() {
         {/* Status Cards */}
         <StatusOverview />
         
-        {/* KPI Section */}
-        <KpiSection />
+        {/* KPI Dashboard */}
+        <Tabs defaultValue="summary" className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="summary">KPI Summary</TabsTrigger>
+            <TabsTrigger value="detailed">Detailed KPIs</TabsTrigger>
+          </TabsList>
+          <TabsContent value="summary" className="space-y-4">
+            <KpiSection />
+          </TabsContent>
+          <TabsContent value="detailed">
+            <KPIDashboard />
+          </TabsContent>
+        </Tabs>
         
         {/* Energy Flow Charts */}
         <EnergyFlowChart />
