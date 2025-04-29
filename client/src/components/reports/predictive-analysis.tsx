@@ -449,12 +449,11 @@ export function PredictiveAnalysis() {
               </div>
               <Progress 
                 value={efficiencyScore} 
-                className="h-2" 
-                indicatorClassName={
-                  efficiencyScore >= 80 ? "bg-green-500" : 
-                  efficiencyScore >= 60 ? "bg-amber-500" : 
-                  "bg-red-500"
-                }
+                className={`h-2 ${
+                  efficiencyScore >= 80 ? "[--progress-foreground:theme(colors.green.500)]" : 
+                  efficiencyScore >= 60 ? "[--progress-foreground:theme(colors.amber.500)]" : 
+                  "[--progress-foreground:theme(colors.red.500)]"
+                }`} 
               />
               <div className="flex justify-between text-xs text-muted-foreground mt-1">
                 <span>Needs Improvement</span>
@@ -471,7 +470,7 @@ export function PredictiveAnalysis() {
                     <CardHeader className="py-3 px-5">
                       <div className="flex justify-between items-start">
                         <CardTitle className="text-base flex items-center gap-2">
-                          <Lightning className={
+                          <BatteryMedium className={
                             rec.impact === 'high' ? "text-green-500" : 
                             rec.impact === 'medium' ? "text-amber-500" : 
                             "text-blue-500"
