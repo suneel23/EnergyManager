@@ -284,9 +284,12 @@ export default function AuthPage() {
             </Tabs>
           </CardContent>
           <CardFooter className="border-t pt-4 flex flex-col space-y-2">
-            <p className="text-xs text-neutral-500 text-center">
-              By using this service, you agree to our Terms of Service and Privacy Policy.
-            </p>
+            <div className="flex justify-between items-center">
+              <p className="text-xs text-neutral-500">
+                By using this service, you agree to our Terms of Service and Privacy Policy.
+              </p>
+              <LanguageSwitcherMini />
+            </div>
           </CardFooter>
         </Card>
       </div>
