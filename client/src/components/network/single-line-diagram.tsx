@@ -146,35 +146,90 @@ export function SingleLineDiagram() {
     }
   };
 
-  // Get node symbol based on type
+  // Get node symbol based on type using international IEC 60617 standard symbols
   const getNodeSymbol = (type: string, status: string, x: number, y: number) => {
     const color = getStatusColor(status);
     
     switch (type.toLowerCase()) {
       case "bus":
+        // IEC 60617: Busbar symbol (horizontal line)
         return (
           <rect 
-            x={x - 30} 
-            y={y - 5} 
-            width={60} 
-            height={10} 
+            x={x - 35} 
+            y={y - 4} 
+            width={70} 
+            height={8} 
             fill={color} 
             stroke="#000" 
             strokeWidth={1}
           />
         );
       case "junction":
+        // IEC 60617: Connection point/node (filled circle)
         return (
-          <circle 
-            cx={x} 
-            cy={y} 
-            r={6} 
-            fill={color} 
-            stroke="#000" 
-            strokeWidth={1}
-          />
+          <g>
+            <circle 
+              cx={x} 
+              cy={y} 
+              r={5} 
+              fill={color} 
+              stroke="#000" 
+              strokeWidth={1}
+            />
+            <circle 
+              cx={x} 
+              cy={y} 
+              r={2} 
+              fill="#000" 
+              stroke="none"
+            />
+          </g>
+        );
+      case "generator":
+        // IEC 60617: Generator symbol (circle with G)
+        return (
+          <g>
+            <circle 
+              cx={x} 
+              cy={y} 
+              r={12} 
+              fill="white" 
+              stroke={color} 
+              strokeWidth={1.5}
+            />
+            <text
+              x={x}
+              y={y + 4}
+              textAnchor="middle"
+              fontSize={12}
+              fontWeight="bold"
+              fill={color}>
+              G
+            </text>
+          </g>
+        );
+      case "load":
+        // IEC 60617: Load symbol (zigzag/resistor)
+        return (
+          <g>
+            <path 
+              d={`M ${x-15},${y} L ${x-10},${y-5} L ${x-5},${y+5} L ${x},${y-5} L ${x+5},${y+5} L ${x+10},${y-5} L ${x+15},${y}`} 
+              stroke={color} 
+              strokeWidth={1.5} 
+              fill="none" 
+            />
+          </g>
+        );
+      case "capacitor":
+        // IEC 60617: Capacitor symbol
+        return (
+          <g>
+            <line x1={x-10} y1={y} x2={x+10} y2={y} stroke={color} strokeWidth={1.5} />
+            <line x1={x} y1={y-10} x2={x} y2={y+10} stroke={color} strokeWidth={1.5} />
+          </g>
         );
       default:
+        // Default connection point
         return (
           <circle 
             cx={x} 
@@ -188,14 +243,17 @@ export function SingleLineDiagram() {
     }
   };
 
-  // Get connection line based on type
+  // Get connection line based on type using international IEC 60617 standard symbols
   const getConnectionLine = (connection: DiagramConnection) => {
     const { sourceX, sourceY, targetX, targetY, type, status } = connection;
     const color = getStatusColor(status);
     
+    // Calculate angle for proper symbol orientation
+    const angle = Math.atan2(targetY - sourceY, targetX - sourceX) * 180 / Math.PI;
+    
     switch (type.toLowerCase()) {
       case "transformer":
-        // Draw a line with transformer symbol in the middle
+        // IEC 60617: Two-winding transformer symbol
         const midX = (sourceX + targetX) / 2;
         const midY = (sourceY + targetY) / 2;
         
@@ -204,14 +262,17 @@ export function SingleLineDiagram() {
             <line 
               x1={sourceX} 
               y1={sourceY} 
-              x2={midX - 10} 
+              x2={midX - 15} 
               y2={midY} 
               stroke={color} 
               strokeWidth={2}
             />
-            <circle cx={midX} cy={midY} r={10} fill="white" stroke={color} strokeWidth={2} />
+            {/* Primary winding */}
+            <circle cx={midX - 10} cy={midY} r={8} fill="white" stroke={color} strokeWidth={1.5} />
+            {/* Secondary winding */}
+            <circle cx={midX + 10} cy={midY} r={8} fill="white" stroke={color} strokeWidth={1.5} />
             <line 
-              x1={midX + 10} 
+              x1={midX + 15} 
               y1={midY} 
               x2={targetX} 
               y2={targetY} 
@@ -221,7 +282,7 @@ export function SingleLineDiagram() {
           </g>
         );
       case "circuit breaker":
-        // Draw a line with circuit breaker symbol
+        // IEC 60617: Circuit breaker symbol
         const cbMidX = (sourceX + targetX) / 2;
         const cbMidY = (sourceY + targetY) / 2;
         
@@ -230,42 +291,61 @@ export function SingleLineDiagram() {
             <line 
               x1={sourceX} 
               y1={sourceY} 
-              x2={cbMidX - 10} 
+              x2={cbMidX - 12} 
               y2={cbMidY} 
               stroke={color} 
               strokeWidth={2}
             />
-            <rect 
-              x={cbMidX - 10} 
-              y={cbMidY - 6} 
-              width={20} 
-              height={12} 
-              fill="white" 
-              stroke={color} 
-              strokeWidth={2}
-            />
+            
+            {/* Circuit breaker symbol */}
+            {status.toLowerCase() === "open" ? (
+              // Open circuit breaker
+              <g>
+                <line 
+                  x1={cbMidX - 12} 
+                  y1={cbMidY} 
+                  x2={cbMidX - 4} 
+                  y2={cbMidY - 8} 
+                  stroke={color} 
+                  strokeWidth={2}
+                />
+                <line 
+                  x1={cbMidX + 4} 
+                  y1={cbMidY + 8} 
+                  x2={cbMidX + 12} 
+                  y2={cbMidY} 
+                  stroke={color} 
+                  strokeWidth={2}
+                />
+              </g>
+            ) : (
+              // Closed circuit breaker
+              <line 
+                x1={cbMidX - 12} 
+                y1={cbMidY} 
+                x2={cbMidX + 12} 
+                y2={cbMidY} 
+                stroke={color} 
+                strokeWidth={2}
+              />
+            )}
+            
+            {/* Fixed contacts */}
+            <circle cx={cbMidX - 12} cy={cbMidY} r={2} fill={color} stroke="none" />
+            <circle cx={cbMidX + 12} cy={cbMidY} r={2} fill={color} stroke="none" />
+            
             <line 
-              x1={cbMidX + 10} 
+              x1={cbMidX + 12} 
               y1={cbMidY} 
               x2={targetX} 
               y2={targetY} 
               stroke={color} 
               strokeWidth={2}
             />
-            {status.toLowerCase() === "open" && (
-              <line 
-                x1={cbMidX - 5} 
-                y1={cbMidY - 5} 
-                x2={cbMidX + 5} 
-                y2={cbMidY + 5} 
-                stroke={color} 
-                strokeWidth={2}
-              />
-            )}
           </g>
         );
       case "disconnector":
-        // Draw a line with disconnector symbol
+        // IEC 60617: Disconnector/Isolator symbol
         const dMidX = (sourceX + targetX) / 2;
         const dMidY = (sourceY + targetY) / 2;
         
@@ -274,38 +354,112 @@ export function SingleLineDiagram() {
             <line 
               x1={sourceX} 
               y1={sourceY} 
-              x2={dMidX - 10} 
+              x2={dMidX - 15} 
               y2={dMidY} 
               stroke={color} 
               strokeWidth={2}
             />
+            
+            {/* Disconnector symbol */}
+            {status.toLowerCase() === "open" ? (
+              // Open disconnector
+              <g>
+                <line 
+                  x1={dMidX - 15} 
+                  y1={dMidY} 
+                  x2={dMidX + 5} 
+                  y2={dMidY - 15} 
+                  stroke={color} 
+                  strokeWidth={2}
+                />
+                <circle cx={dMidX - 15} cy={dMidY} r={2} fill={color} />
+                <circle cx={dMidX + 15} cy={dMidY} r={2} fill={color} />
+              </g>
+            ) : (
+              // Closed disconnector
+              <g>
+                <line 
+                  x1={dMidX - 15} 
+                  y1={dMidY} 
+                  x2={dMidX + 15} 
+                  y2={dMidY} 
+                  stroke={color} 
+                  strokeWidth={2}
+                />
+                <circle cx={dMidX - 15} cy={dMidY} r={2} fill={color} />
+                <circle cx={dMidX + 15} cy={dMidY} r={2} fill={color} />
+              </g>
+            )}
+            
             <line 
-              x1={dMidX - 10} 
-              y1={dMidY} 
-              x2={dMidX + 10} 
-              y2={dMidY} 
-              stroke={color} 
-              strokeWidth={2}
-            />
-            <line 
-              x1={dMidX + 10} 
+              x1={dMidX + 15} 
               y1={dMidY} 
               x2={targetX} 
               y2={targetY} 
               stroke={color} 
               strokeWidth={2}
             />
-            {status.toLowerCase() === "open" && (
-              <line 
-                x1={dMidX} 
-                y1={dMidY} 
-                x2={dMidX + 5} 
-                y2={dMidY - 10} 
-                stroke={color} 
-                strokeWidth={2}
-              />
-            )}
           </g>
+        );
+      case "fuse":
+        // IEC 60617: Fuse symbol
+        const fMidX = (sourceX + targetX) / 2;
+        const fMidY = (sourceY + targetY) / 2;
+        
+        return (
+          <g>
+            <line 
+              x1={sourceX} 
+              y1={sourceY} 
+              x2={fMidX - 10} 
+              y2={fMidY} 
+              stroke={color} 
+              strokeWidth={2}
+            />
+            
+            {/* Fuse symbol - box with thin line inside */}
+            <rect
+              x={fMidX - 10}
+              y={fMidY - 6}
+              width={20}
+              height={12}
+              fill="white"
+              stroke={color}
+              strokeWidth={1.5}
+            />
+            
+            <line 
+              x1={fMidX - 8} 
+              y1={fMidY} 
+              x2={fMidX + 8} 
+              y2={fMidY} 
+              stroke={color} 
+              strokeWidth={1}
+              strokeDasharray={status.toLowerCase() === "open" ? "1,1" : "none"}
+            />
+            
+            <line 
+              x1={fMidX + 10} 
+              y1={fMidY} 
+              x2={targetX} 
+              y2={targetY} 
+              stroke={color} 
+              strokeWidth={2}
+            />
+          </g>
+        );
+      case "line":
+        // IEC 60617: 3-phase line (represented as single thick line)
+        return (
+          <line 
+            x1={sourceX} 
+            y1={sourceY} 
+            x2={targetX} 
+            y2={targetY} 
+            stroke={color} 
+            strokeWidth={3}
+            strokeLinecap="round"
+          />
         );
       default:
         // Simple line for other connection types
@@ -391,15 +545,14 @@ export function SingleLineDiagram() {
     },
   });
   
-  // Get meter symbol based on type, direction and value
+  // Get meter symbol based on type, direction and value using IEC 60617 standards
   const getMeterSymbol = (meter: NetworkMeter) => {
     const { x, y, type, status, direction, value, unit } = meter;
     const color = getStatusColor(status);
     const textColor = status.toLowerCase() === "fault" ? "#D32F2F" : "#333333";
-    const radius = 12;
     
     // Calculate position offset based on direction
-    const xOffset = direction === "in" ? -20 : 20;
+    const xOffset = direction === "in" ? -24 : 24;
     const yOffset = 0;
     
     return (
@@ -408,20 +561,121 @@ export function SingleLineDiagram() {
         transform={`translate(${x + xOffset}, ${y + yOffset})`}
         onClick={(e) => handleMeterClick(e, meter)}
       >
-        <circle 
-          cx={0} 
-          cy={0} 
-          r={radius} 
-          fill="white" 
-          stroke={color} 
-          strokeWidth={2}
-        />
-        {type === "power" && <Gauge className="meter-icon" x={-8} y={-8} width={16} height={16} color={color} />}
-        {type === "current" && <Activity className="meter-icon" x={-8} y={-8} width={16} height={16} color={color} />}
+        {/* IEC 60617 based meter symbols */}
+        {type === "power" && (
+          // Power meter symbol (wattmeter) - IEC 60617: square with W
+          <g>
+            <rect 
+              x={-12} 
+              y={-12} 
+              width={24} 
+              height={24} 
+              fill="white" 
+              stroke={color} 
+              strokeWidth={1.5}
+              rx={2}
+            />
+            <text 
+              x={0} 
+              y={4} 
+              textAnchor="middle" 
+              fontSize={14} 
+              fontWeight="bold"
+              fill={color}
+            >
+              W
+            </text>
+          </g>
+        )}
         
+        {type === "current" && (
+          // Current meter symbol (ammeter) - IEC 60617: circle with A
+          <g>
+            <circle 
+              cx={0} 
+              cy={0} 
+              r={12} 
+              fill="white" 
+              stroke={color} 
+              strokeWidth={1.5}
+            />
+            <text 
+              x={0} 
+              y={4} 
+              textAnchor="middle" 
+              fontSize={14} 
+              fontWeight="bold"
+              fill={color}
+            >
+              A
+            </text>
+          </g>
+        )}
+        
+        {type === "voltage" && (
+          // Voltage meter symbol (voltmeter) - IEC 60617: circle with V
+          <g>
+            <circle 
+              cx={0} 
+              cy={0} 
+              r={12} 
+              fill="white" 
+              stroke={color} 
+              strokeWidth={1.5}
+            />
+            <text 
+              x={0} 
+              y={4} 
+              textAnchor="middle" 
+              fontSize={14} 
+              fontWeight="bold"
+              fill={color}
+            >
+              V
+            </text>
+          </g>
+        )}
+        
+        {type !== "power" && type !== "current" && type !== "voltage" && (
+          // Generic measurement symbol
+          <g>
+            <rect 
+              x={-12} 
+              y={-12} 
+              width={24} 
+              height={24} 
+              fill="white" 
+              stroke={color} 
+              strokeWidth={1.5}
+              rx={2}
+            />
+            <text 
+              x={0} 
+              y={4} 
+              textAnchor="middle" 
+              fontSize={12} 
+              fontWeight="bold"
+              fill={color}
+            >
+              M
+            </text>
+          </g>
+        )}
+        
+        {/* Arrow indicating flow direction */}
+        <path 
+          d={direction === "in" 
+            ? "M 14,-4 L 22,-4 L 22,-8 L 30,0 L 22,8 L 22,4 L 14,4 Z" // Arrow pointing right
+            : "M -14,-4 L -22,-4 L -22,-8 L -30,0 L -22,8 L -22,4 L -14,4 Z" // Arrow pointing left
+          } 
+          fill={color}
+          opacity={0.8}
+        />
+        
+        {/* Value display */}
         <text 
           x={0} 
-          y={radius + 14} 
+          y={20} 
           textAnchor="middle" 
           fontSize={10} 
           fill={textColor}
@@ -429,14 +683,15 @@ export function SingleLineDiagram() {
           {value} {unit}
         </text>
         
+        {/* Meter name */}
         <text 
           x={0} 
-          y={radius + 26} 
+          y={32} 
           textAnchor="middle" 
           fontSize={8} 
           fill="#666666"
         >
-          {direction === "in" ? "→" : "←"} {meter.name}
+          {meter.name}
         </text>
       </g>
     );
