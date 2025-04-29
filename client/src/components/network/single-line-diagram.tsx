@@ -92,8 +92,11 @@ export function SingleLineDiagram() {
 
   // Start dragging
   const handleMouseDown = (e: React.MouseEvent) => {
-    setDragging(true);
-    setDragStart({ x: e.clientX, y: e.clientY });
+    // Only initiate drag if it's the main SVG and not an element
+    if (e.currentTarget === e.target) {
+      setDragging(true);
+      setDragStart({ x: e.clientX, y: e.clientY });
+    }
   };
 
   // Handle dragging
@@ -358,20 +361,18 @@ export function SingleLineDiagram() {
     },
   });
 
-  // Handle node click
+  // Handle node click - just select it without opening dialog immediately
   const handleNodeClick = (e: React.MouseEvent, node: NetworkNode) => {
     e.stopPropagation(); // Prevent SVG drag from happening
     setSelectedNode(node);
     setSelectedConnection(undefined);
-    setDialogOpen(true);
   };
 
-  // Handle connection click
+  // Handle connection click - just select it without opening dialog immediately
   const handleConnectionClick = (e: React.MouseEvent, connection: NetworkConnection) => {
     e.stopPropagation(); // Prevent SVG drag from happening
     setSelectedConnection(connection);
     setSelectedNode(undefined);
-    setDialogOpen(true);
   };
 
   // Handle delete confirmation
@@ -546,33 +547,35 @@ export function SingleLineDiagram() {
               </g>
             </svg>
 
-            {/* Network element dialog */}
-            <NetworkElementDialog
-              open={dialogOpen}
-              onOpenChange={setDialogOpen}
-              nodes={diagramNodes}
-              selectedNode={selectedNode}
-              selectedConnection={selectedConnection}
-              defaultTab={defaultTab}
-            />
+            {dialogOpen && (
+              <NetworkElementDialog
+                open={dialogOpen}
+                onOpenChange={setDialogOpen}
+                nodes={diagramNodes}
+                selectedNode={selectedNode}
+                selectedConnection={selectedConnection}
+                defaultTab={defaultTab}
+              />
+            )}
 
-            {/* Delete confirmation dialog */}
-            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    {selectedNode ? 
-                      "This will delete the selected network node and all its connections. This action cannot be undone." 
-                      : "This will delete the selected network connection. This action cannot be undone."}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            {deleteDialogOpen && (
+              <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      {selectedNode ? 
+                        "This will delete the selected network node and all its connections. This action cannot be undone." 
+                        : "This will delete the selected network connection. This action cannot be undone."}
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </>
         )}
       </CardContent>
