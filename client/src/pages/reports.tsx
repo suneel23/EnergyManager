@@ -3,8 +3,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { AppLayout } from "@/layouts/app-layout";
 import { LogAnalyzer } from "@/components/reports/log-analyzer";
 import { EnergyReports } from "@/components/reports/energy-reports";
+import { PredictiveAnalysis } from "@/components/reports/predictive-analysis";
 import { Helmet } from "react-helmet";
-import { AlertCircle, BarChart, FileText, PieChart, Zap } from "lucide-react";
+import { AlertCircle, BarChart, Brain, FileText, PieChart, Sparkles, Zap } from "lucide-react";
 
 export default function ReportsPage() {
   const [activeTab, setActiveTab] = useState("logs");
@@ -26,7 +27,7 @@ export default function ReportsPage() {
         </div>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid grid-cols-2 md:grid-cols-4 w-full md:w-auto">
+          <TabsList className="grid grid-cols-3 md:grid-cols-5 w-full md:w-auto">
             <TabsTrigger value="logs" className="flex items-center gap-2">
               <FileText className="h-4 w-4" />
               <span className="hidden md:inline">System Logs</span>
@@ -36,6 +37,11 @@ export default function ReportsPage() {
               <Zap className="h-4 w-4" />
               <span className="hidden md:inline">Energy Reports</span>
               <span className="inline md:hidden">Energy</span>
+            </TabsTrigger>
+            <TabsTrigger value="predictive" className="flex items-center gap-2">
+              <Brain className="h-4 w-4" />
+              <span className="hidden md:inline">AI Predictions</span>
+              <span className="inline md:hidden">AI</span>
             </TabsTrigger>
             <TabsTrigger value="alerts" className="flex items-center gap-2">
               <AlertCircle className="h-4 w-4" />
@@ -55,6 +61,10 @@ export default function ReportsPage() {
           
           <TabsContent value="energy" className="mt-6">
             <EnergyReports />
+          </TabsContent>
+          
+          <TabsContent value="predictive" className="mt-6">
+            <PredictiveAnalysis />
           </TabsContent>
           
           <TabsContent value="alerts" className="mt-6">
