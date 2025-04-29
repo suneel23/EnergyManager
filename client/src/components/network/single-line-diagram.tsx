@@ -1,10 +1,33 @@
-import { useRef, useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useRef, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { NetworkNode, NetworkConnection } from "@shared/schema";
-import { Circle, Ellipsis, Plus, Minus, Maximize, Search } from "lucide-react";
+import { 
+  Circle, 
+  Plus, 
+  Minus, 
+  Maximize, 
+  Search, 
+  Edit, 
+  Trash2, 
+  PlusCircle,
+  FileSymlink
+} from "lucide-react";
+import { NetworkElementDialog } from "./network-element-dialog";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface DiagramNode extends NetworkNode {
   x: number;
@@ -24,6 +47,13 @@ export function SingleLineDiagram() {
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [dragging, setDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedNode, setSelectedNode] = useState<NetworkNode | undefined>();
+  const [selectedConnection, setSelectedConnection] = useState<NetworkConnection | undefined>();
+  const [defaultTab, setDefaultTab] = useState<"node" | "connection">("node");
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
   
   const { data, isLoading } = useQuery<{nodes: NetworkNode[], connections: NetworkConnection[]}>({
     queryKey: ["/api/network"],
@@ -282,6 +312,78 @@ export function SingleLineDiagram() {
     }
   };
 
+  // Delete node mutation
+  const deleteNodeMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("DELETE", `/api/network/nodes/${id}`);
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Network node and associated connections deleted",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/network"] });
+      setSelectedNode(undefined);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete network node: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete connection mutation
+  const deleteConnectionMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("DELETE", `/api/network/connections/${id}`);
+      return await res.json();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Success",
+        description: "Network connection deleted",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/network"] });
+      setSelectedConnection(undefined);
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: `Failed to delete network connection: ${error.message}`,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Handle node click
+  const handleNodeClick = (e: React.MouseEvent, node: NetworkNode) => {
+    e.stopPropagation(); // Prevent SVG drag from happening
+    setSelectedNode(node);
+    setSelectedConnection(undefined);
+    setDialogOpen(true);
+  };
+
+  // Handle connection click
+  const handleConnectionClick = (e: React.MouseEvent, connection: NetworkConnection) => {
+    e.stopPropagation(); // Prevent SVG drag from happening
+    setSelectedConnection(connection);
+    setSelectedNode(undefined);
+    setDialogOpen(true);
+  };
+
+  // Handle delete confirmation
+  const handleDeleteConfirm = () => {
+    if (selectedNode) {
+      deleteNodeMutation.mutate(selectedNode.id);
+    } else if (selectedConnection) {
+      deleteConnectionMutation.mutate(selectedConnection.id);
+    }
+    setDeleteDialogOpen(false);
+  };
+
   return (
     <Card className="shadow">
       <CardHeader className="p-4 border-b border-gray-200 flex flex-row items-center justify-between">
@@ -301,8 +403,17 @@ export function SingleLineDiagram() {
               <Circle className="h-2 w-2 fill-current text-amber-500 mr-1" /> Maintenance
             </Badge>
           </div>
-          <Button variant="outline" size="icon">
-            <Maximize className="h-4 w-4" />
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              setDefaultTab("node");
+              setSelectedNode(undefined);
+              setSelectedConnection(undefined);
+              setDialogOpen(true);
+            }}
+          >
+            <PlusCircle className="h-4 w-4 mr-2" />
+            Add Element
           </Button>
         </div>
       </CardHeader>
@@ -329,12 +440,49 @@ export function SingleLineDiagram() {
               </Button>
             </div>
             
+            {/* Management controls */}
+            <div className="absolute top-4 right-4 z-10 p-2 bg-white rounded shadow">
+              <div className="flex flex-col space-y-2">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  disabled={!selectedNode && !selectedConnection}
+                  onClick={() => setDialogOpen(true)}
+                >
+                  <Edit className="h-4 w-4 mr-2" />
+                  Edit Selected
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  disabled={!selectedNode && !selectedConnection}
+                  onClick={() => setDeleteDialogOpen(true)}
+                >
+                  <Trash2 className="h-4 w-4 mr-2" />
+                  Delete Selected
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setDefaultTab("connection");
+                    setSelectedNode(undefined);
+                    setSelectedConnection(undefined);
+                    setDialogOpen(true);
+                  }}
+                >
+                  <FileSymlink className="h-4 w-4 mr-2" />
+                  Add Connection
+                </Button>
+              </div>
+            </div>
+            
             {/* SVG Diagram */}
             <svg
               ref={svgRef}
               width="100%"
               height="100%"
-              className="cursor-move"
+              className={dragging ? "cursor-grabbing" : "cursor-grab"}
               onMouseDown={handleMouseDown}
               onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp}
@@ -343,14 +491,33 @@ export function SingleLineDiagram() {
               <g transform={`translate(${offset.x}, ${offset.y}) scale(${scale})`}>
                 {/* Connection lines */}
                 {diagramConnections.map((connection, index) => (
-                  <g key={`connection-${index}`}>
+                  <g 
+                    key={`connection-${index}`}
+                    onClick={(e) => handleConnectionClick(e, connection)}
+                    style={{ cursor: "pointer" }}
+                    className={selectedConnection?.id === connection.id ? "opacity-70" : ""}
+                  >
                     {getConnectionLine(connection)}
+                    {/* Interactive overlay for better click target */}
+                    <line 
+                      x1={connection.sourceX} 
+                      y1={connection.sourceY} 
+                      x2={connection.targetX} 
+                      y2={connection.targetY} 
+                      stroke="transparent" 
+                      strokeWidth={10}
+                    />
                   </g>
                 ))}
                 
                 {/* Nodes */}
                 {diagramNodes.map((node, index) => (
-                  <g key={`node-${index}`}>
+                  <g 
+                    key={`node-${index}`}
+                    onClick={(e) => handleNodeClick(e, node)}
+                    style={{ cursor: "pointer" }}
+                    className={selectedNode?.id === node.id ? "opacity-70" : ""}
+                  >
                     {getNodeSymbol(node.type, node.status, node.x, node.y)}
                     <text
                       x={node.x}
@@ -358,13 +525,54 @@ export function SingleLineDiagram() {
                       textAnchor="middle"
                       fill="#000"
                       fontSize={12}
+                      pointerEvents="none"
                     >
                       {node.label}
                     </text>
+                    {/* Show selection indicator if selected */}
+                    {selectedNode?.id === node.id && (
+                      <circle 
+                        cx={node.x} 
+                        cy={node.y} 
+                        r={12} 
+                        fill="none" 
+                        stroke="#2563EB" 
+                        strokeWidth={2}
+                        strokeDasharray="4 2"
+                      />
+                    )}
                   </g>
                 ))}
               </g>
             </svg>
+
+            {/* Network element dialog */}
+            <NetworkElementDialog
+              open={dialogOpen}
+              onOpenChange={setDialogOpen}
+              nodes={diagramNodes}
+              selectedNode={selectedNode}
+              selectedConnection={selectedConnection}
+              defaultTab={defaultTab}
+            />
+
+            {/* Delete confirmation dialog */}
+            <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    {selectedNode ? 
+                      "This will delete the selected network node and all its connections. This action cannot be undone." 
+                      : "This will delete the selected network connection. This action cannot be undone."}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={handleDeleteConfirm}>Delete</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </>
         )}
       </CardContent>
