@@ -50,6 +50,7 @@ export type TranslationKey =
   | 'to'
   | 'of'
   | 'results'
+  | 'actions'
   
   // Dashboard
   | 'overview'
@@ -62,7 +63,6 @@ export type TranslationKey =
   | 'welcome_message'
   
   // Equipment
-  | 'add_equipment'
   | 'equipment_id'
   | 'equipment_type'
   | 'equipment_name'
@@ -192,11 +192,13 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     fault: 'Fault',
     equipment_inventory: 'Equipment Inventory',
     search_equipment: 'Search equipment...',
+    add_equipment: 'Add Equipment',
     no_equipment_found: 'No equipment found',
     showing: 'Showing',
     to: 'to',
     of: 'of',
     results: 'results',
+    actions: 'Actions',
     
     // Dashboard
     overview: 'Overview',
@@ -343,6 +345,7 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     to: 'до',
     of: 'из',
     results: 'результатов',
+    actions: 'Действия',
     
     // Dashboard
     overview: 'Обзор',
@@ -489,6 +492,7 @@ export const translations: Record<Language, Record<TranslationKey, string>> = {
     to: 'то',
     of: 'аз',
     results: 'натиҷаҳо',
+    actions: 'Амалҳо',
     
     // Dashboard
     overview: 'Мурури умумӣ',

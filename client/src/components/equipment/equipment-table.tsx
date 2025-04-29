@@ -114,7 +114,7 @@ export function EquipmentTable() {
                   {paginatedEquipment.length === 0 ? (
                     <TableRow>
                       <TableCell colSpan={8} className="text-center py-4 text-neutral-500">
-                        No equipment found
+                        {t('no_equipment_found')}
                       </TableCell>
                     </TableRow>
                   ) : (
@@ -129,8 +129,8 @@ export function EquipmentTable() {
                         <TableCell>{formatDate(item.lastMaintenance)}</TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
-                            <Button variant="link" className="text-primary-600 h-auto p-0">View</Button>
-                            <Button variant="link" className="text-neutral-600 h-auto p-0">Edit</Button>
+                            <Button variant="link" className="text-primary-600 h-auto p-0">{t('view')}</Button>
+                            <Button variant="link" className="text-neutral-600 h-auto p-0">{t('edit')}</Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -144,11 +144,11 @@ export function EquipmentTable() {
             <div className="flex items-center justify-between py-4 px-6 border-t border-gray-200">
               <div>
                 <p className="text-sm text-neutral-700">
-                  Showing <span className="font-medium">{(currentPage - 1) * pageSize + 1}</span> to{" "}
+                  {t('showing')} <span className="font-medium">{(currentPage - 1) * pageSize + 1}</span> {t('to')}{" "}
                   <span className="font-medium">
                     {Math.min(currentPage * pageSize, filteredEquipment.length)}
                   </span>{" "}
-                  of <span className="font-medium">{filteredEquipment.length}</span> results
+                  {t('of')} <span className="font-medium">{filteredEquipment.length}</span> {t('results')}
                 </p>
               </div>
               <div className="flex space-x-1">
