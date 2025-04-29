@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
+import { useLanguage } from "@/hooks/use-language";
 import { 
   LayoutDashboard, 
   BarChart3, 
@@ -18,53 +19,54 @@ interface SidebarProps {
 
 export function Sidebar({ className }: SidebarProps) {
   const [location] = useLocation();
+  const { t } = useLanguage();
 
   const navigationItems = [
     {
-      category: "MAIN NAVIGATION",
+      category: t('overview'),
       items: [
         {
-          name: "Dashboard",
+          name: t('dashboard'),
           icon: <LayoutDashboard className="h-5 w-5 mr-3" />,
           path: "/"
         },
         {
-          name: "Network Diagram",
+          name: t('network_diagram'),
           icon: <GitBranch className="h-5 w-5 mr-3" />,
           path: "/network"
         },
         {
-          name: "Equipment Inventory",
+          name: t('equipment'),
           icon: <Database className="h-5 w-5 mr-3" />,
           path: "/equipment"
         },
         {
-          name: "Work Permits",
+          name: t('work_permits'),
           icon: <ClipboardList className="h-5 w-5 mr-3" />,
           path: "/permits"
         },
         {
-          name: "Analytics",
+          name: t('analytics'),
           icon: <BarChart3 className="h-5 w-5 mr-3" />,
           path: "/analytics"
         },
         {
-          name: "Reports",
+          name: t('reports'),
           icon: <FileText className="h-5 w-5 mr-3" />,
           path: "/reports"
         }
       ]
     },
     {
-      category: "ADMINISTRATION",
+      category: t('settings'),
       items: [
         {
-          name: "User Management",
+          name: t('users'),
           icon: <Users className="h-5 w-5 mr-3" />,
           path: "/users"
         },
         {
-          name: "Settings",
+          name: t('settings'),
           icon: <Cog className="h-5 w-5 mr-3" />,
           path: "/settings"
         }
