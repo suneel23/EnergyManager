@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MoreVertical } from "lucide-react";
+import { MoreVertical, AlertTriangle, Check } from "lucide-react";
 import { 
   AreaChart, 
   Area, 
