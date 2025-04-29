@@ -324,11 +324,11 @@ export class MemStorage implements IStorage {
 
   // Initialize demo data
   private async initializeDemoData() {
-    // Create admin user with pre-hashed password
-    // The hash below is for "admin123" using the same algorithm as in auth.ts
+    // Create admin user with plain text password for demo purposes
+    // In a real application, this would be properly hashed
     await this.createUser({
       username: "admin",
-      password: "5dca0b845c9fc4273a334208785347c554d8604ff7127d65fc9f5356176fe1c28d6239c53062af4713a649c476c62c77c30dfed15ab3ec97e78e4b82ee3e13cd.2dcd649c1e96a968ba6ad9e21bd011c6",
+      password: "admin123",
       fullName: "Admin User",
       email: "admin@example.com",
       role: "Admin",
