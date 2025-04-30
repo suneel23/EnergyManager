@@ -158,7 +158,8 @@ Provide specific, technically sound recommendations that would be appropriate fo
       max_tokens: 2048,
     });
 
-    const content = response.choices[0].message.content || "{}";
+    const messageContent = response.choices[0].message.content;
+    const content = messageContent !== null && messageContent !== undefined ? messageContent : "{}";
     const result = JSON.parse(content);
     return result as LogAnalysisResult;
   } catch (error) {
@@ -253,7 +254,9 @@ Ensure recommendations are technically sound and appropriate for an energy manag
       max_tokens: 2048,
     });
 
-    const result = JSON.parse(response.choices[0].message.content);
+    const messageContent = response.choices[0].message.content;
+    const content = messageContent !== null && messageContent !== undefined ? messageContent : "{}";
+    const result = JSON.parse(content);
     return result;
   } catch (error) {
     console.error("Error generating energy recommendations with AI:", error);
@@ -400,7 +403,9 @@ Ensure all recommendations and insights are technically sound and appropriate fo
       max_tokens: 3000,
     });
 
-    const result = JSON.parse(response.choices[0].message.content);
+    const messageContent = response.choices[0].message.content;
+    const content = messageContent !== null && messageContent !== undefined ? messageContent : "{}";
+    const result = JSON.parse(content);
     return result as PredictiveAnalysisResult;
   } catch (error) {
     console.error("Error generating predictive analysis with AI:", error);
