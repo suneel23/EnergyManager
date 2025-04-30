@@ -145,11 +145,50 @@ export const networkMeters = pgTable("network_meters", {
   location: text("location").notNull(),
   type: text("type").notNull().default("power"),     // power, voltage, current
   unit: text("unit").notNull().default("kW"),        // kW, MW, kV, V, A
-  value: real("value").notNull().default("0"),
+  value: real("value").notNull().default(0),         // Default numeric value
   lastUpdated: timestamp("last_updated").defaultNow(),
   status: text("status").notNull().default("active"), // active, inactive, fault
   x: integer("x").notNull(),                         // Position for rendering on diagram
   y: integer("y").notNull(),                         // Position for rendering on diagram
+});
+
+// ZONOS Meter Integration
+export const zonosMeterDetails = pgTable("zonos_meter_details", {
+  id: serial("id").primaryKey(),
+  meterId: text("meter_id").notNull().unique(),      // References networkMeters.meterId
+  deviceId: text("device_id").notNull().unique(),    // ZONOS device identifier
+  serialNumber: text("serial_number").notNull(),     // Meter serial number
+  manufacturer: text("manufacturer").notNull(),      // Manufacturer name (e.g., "ZONOS")
+  model: text("model").notNull(),                    // Model name (e.g., "ZFA200")
+  firmwareVersion: text("firmware_version"),         // Current firmware version
+  protocol: text("protocol"),                        // Communication protocol
+  communicationStatus: text("communication_status").notNull().default("online"), // online, offline
+  lastCommunication: timestamp("last_communication"),// Last successful data exchange
+  parameters: text("parameters"),                    // JSON string for technical parameters
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// ZONOS Meter Readings
+export const zonosMeterReadings = pgTable("zonos_meter_readings", {
+  id: serial("id").primaryKey(),
+  meterId: text("meter_id").notNull(),               // References networkMeters.meterId
+  timestamp: timestamp("timestamp").notNull(),
+  activePowerImport: real("active_power_import"),    // kW (consumption)
+  activePowerExport: real("active_power_export"),    // kW (generation)
+  reactivePowerImport: real("reactive_power_import"),// kVAr
+  reactivePowerExport: real("reactive_power_export"),// kVAr
+  voltageL1: real("voltage_l1"),                     // V
+  voltageL2: real("voltage_l2"),                     // V
+  voltageL3: real("voltage_l3"),                     // V
+  currentL1: real("current_l1"),                     // A
+  currentL2: real("current_l2"),                     // A
+  currentL3: real("current_l3"),                     // A
+  frequency: real("frequency"),                      // Hz
+  powerFactor: real("power_factor"),                 // PF
+  totalActiveEnergy: real("total_active_energy"),    // kWh
+  totalReactiveEnergy: real("total_reactive_energy"),// kVArh
+  qualityIndicator: text("quality_indicator"),       // Data quality (valid, estimated, missing)
 });
 
 export const insertNetworkMeterSchema = createInsertSchema(networkMeters, {
@@ -159,6 +198,16 @@ export const insertNetworkMeterSchema = createInsertSchema(networkMeters, {
 }).omit({
   id: true,
   lastUpdated: true,
+});
+
+export const insertZonosMeterDetailsSchema = createInsertSchema(zonosMeterDetails).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertZonosMeterReadingsSchema = createInsertSchema(zonosMeterReadings).omit({
+  id: true,
 });
 
 // Types
@@ -185,3 +234,9 @@ export type InsertNetworkConnection = z.infer<typeof insertNetworkConnectionSche
 
 export type NetworkMeter = typeof networkMeters.$inferSelect;
 export type InsertNetworkMeter = z.infer<typeof insertNetworkMeterSchema>;
+
+export type ZonosMeterDetails = typeof zonosMeterDetails.$inferSelect;
+export type InsertZonosMeterDetails = z.infer<typeof insertZonosMeterDetailsSchema>;
+
+export type ZonosMeterReading = typeof zonosMeterReadings.$inferSelect;
+export type InsertZonosMeterReading = z.infer<typeof insertZonosMeterReadingsSchema>;
