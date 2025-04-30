@@ -1,9 +1,12 @@
 import { 
   users, equipment, workPermits, energyMeasurements, alerts, networkNodes, networkConnections,
+  networkMeters, zonosMeterDetails, zonosMeterReadings,
   type User, type Equipment, type WorkPermit, type EnergyMeasurement, type Alert, 
-  type NetworkNode, type NetworkConnection,
+  type NetworkNode, type NetworkConnection, type NetworkMeter,
+  type ZonosMeterDetails, type ZonosMeterReading,
   type InsertUser, type InsertEquipment, type InsertWorkPermit, type InsertEnergyMeasurement,
-  type InsertAlert, type InsertNetworkNode, type InsertNetworkConnection
+  type InsertAlert, type InsertNetworkNode, type InsertNetworkConnection, type InsertNetworkMeter,
+  type InsertZonosMeterDetails, type InsertZonosMeterReading
 } from "@shared/schema";
 import session from "express-session";
 import createMemoryStore from "memorystore";
@@ -61,6 +64,19 @@ export interface IStorage {
   updateNetworkMeter(id: number, meter: Partial<NetworkMeter>): Promise<NetworkMeter | undefined>;
   deleteNetworkMeter(id: number): Promise<boolean>;
   
+  // ZONOS Meter Integration
+  getZonosMeterDetails(id: number): Promise<ZonosMeterDetails | undefined>;
+  getZonosMeterDetailsByMeterId(meterId: string): Promise<ZonosMeterDetails | undefined>;
+  getZonosMeterDetailsByDeviceId(deviceId: string): Promise<ZonosMeterDetails | undefined>;
+  getAllZonosMeterDetails(): Promise<ZonosMeterDetails[]>;
+  createZonosMeterDetails(details: InsertZonosMeterDetails): Promise<ZonosMeterDetails>;
+  updateZonosMeterDetails(id: number, details: Partial<ZonosMeterDetails>): Promise<ZonosMeterDetails | undefined>;
+  
+  // ZONOS Meter Readings
+  getZonosMeterReadings(meterId: string, limit?: number): Promise<ZonosMeterReading[]>;
+  getLatestZonosMeterReading(meterId: string): Promise<ZonosMeterReading | undefined>;
+  createZonosMeterReading(reading: InsertZonosMeterReading): Promise<ZonosMeterReading>;
+  
   // Session management
   sessionStore: session.SessionStore;
 }
@@ -74,6 +90,8 @@ export class MemStorage implements IStorage {
   private networkNodesMap: Map<number, NetworkNode>;
   private networkConnectionsMap: Map<number, NetworkConnection>;
   private networkMetersMap: Map<number, NetworkMeter>;
+  private zonosMeterDetailsMap: Map<number, ZonosMeterDetails>;
+  private zonosMeterReadingsMap: Map<number, ZonosMeterReading>;
   
   private userIdCounter: number = 1;
   private equipmentIdCounter: number = 1;
@@ -83,6 +101,8 @@ export class MemStorage implements IStorage {
   private networkNodeIdCounter: number = 1;
   private networkConnectionIdCounter: number = 1;
   private networkMeterIdCounter: number = 1;
+  private zonosMeterDetailsIdCounter: number = 1;
+  private zonosMeterReadingsIdCounter: number = 1;
   
   sessionStore: session.SessionStore;
 
@@ -95,6 +115,8 @@ export class MemStorage implements IStorage {
     this.networkNodesMap = new Map();
     this.networkConnectionsMap = new Map();
     this.networkMetersMap = new Map();
+    this.zonosMeterDetailsMap = new Map();
+    this.zonosMeterReadingsMap = new Map();
     
     this.sessionStore = new MemoryStore({
       checkPeriod: 86400000 // Prune expired entries every 24h
@@ -407,6 +429,77 @@ export class MemStorage implements IStorage {
     return this.networkMetersMap.delete(id);
   }
 
+  // ZONOS Meter Integration methods
+  async getZonosMeterDetails(id: number): Promise<ZonosMeterDetails | undefined> {
+    return this.zonosMeterDetailsMap.get(id);
+  }
+
+  async getZonosMeterDetailsByMeterId(meterId: string): Promise<ZonosMeterDetails | undefined> {
+    return Array.from(this.zonosMeterDetailsMap.values()).find(
+      (details) => details.meterId === meterId
+    );
+  }
+
+  async getZonosMeterDetailsByDeviceId(deviceId: string): Promise<ZonosMeterDetails | undefined> {
+    return Array.from(this.zonosMeterDetailsMap.values()).find(
+      (details) => details.deviceId === deviceId
+    );
+  }
+
+  async getAllZonosMeterDetails(): Promise<ZonosMeterDetails[]> {
+    return Array.from(this.zonosMeterDetailsMap.values());
+  }
+
+  async createZonosMeterDetails(details: InsertZonosMeterDetails): Promise<ZonosMeterDetails> {
+    const id = this.zonosMeterDetailsIdCounter++;
+    const now = new Date();
+    const meterDetails: ZonosMeterDetails = {
+      ...details,
+      id,
+      createdAt: now,
+      updatedAt: now
+    };
+    this.zonosMeterDetailsMap.set(id, meterDetails);
+    return meterDetails;
+  }
+
+  async updateZonosMeterDetails(id: number, detailsData: Partial<ZonosMeterDetails>): Promise<ZonosMeterDetails | undefined> {
+    const details = this.zonosMeterDetailsMap.get(id);
+    if (!details) return undefined;
+    
+    const updatedDetails = { 
+      ...details, 
+      ...detailsData,
+      updatedAt: new Date()
+    };
+    this.zonosMeterDetailsMap.set(id, updatedDetails);
+    return updatedDetails;
+  }
+
+  // ZONOS Meter Readings methods
+  async getZonosMeterReadings(meterId: string, limit?: number): Promise<ZonosMeterReading[]> {
+    const readings = Array.from(this.zonosMeterReadingsMap.values())
+      .filter(reading => reading.meterId === meterId)
+      .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime());
+    
+    return limit ? readings.slice(0, limit) : readings;
+  }
+
+  async getLatestZonosMeterReading(meterId: string): Promise<ZonosMeterReading | undefined> {
+    const readings = await this.getZonosMeterReadings(meterId, 1);
+    return readings.length > 0 ? readings[0] : undefined;
+  }
+
+  async createZonosMeterReading(reading: InsertZonosMeterReading): Promise<ZonosMeterReading> {
+    const id = this.zonosMeterReadingsIdCounter++;
+    const meterReading: ZonosMeterReading = {
+      ...reading,
+      id
+    };
+    this.zonosMeterReadingsMap.set(id, meterReading);
+    return meterReading;
+  }
+
   // Initialize demo data
   private async initializeDemoData() {
     // Create admin user with plain text password for demo purposes
@@ -652,6 +745,122 @@ export class MemStorage implements IStorage {
       equipmentId: "EQ-1027", // Transformer T-104
       status: "fault"
     });
+    
+    // Create network meters
+    const meter1 = await this.createNetworkMeter({
+      meterId: "NM-0001",
+      connectionId: 1,
+      nodeId: "BUS-35-1",
+      direction: "in",
+      name: "Main Incoming Meter",
+      location: "North Substation",
+      type: "power",
+      unit: "MW",
+      value: 48.5,
+      x: 120,
+      y: 320
+    });
+    
+    const meter2 = await this.createNetworkMeter({
+      meterId: "NM-0002",
+      connectionId: 2,
+      nodeId: "BUS-10-1",
+      direction: "out",
+      name: "Feeder Outgoing Meter",
+      location: "East Substation",
+      type: "power",
+      unit: "MW",
+      value: 4.8,
+      x: 320,
+      y: 520
+    });
+    
+    // Create ZONOS meter details
+    await this.createZonosMeterDetails({
+      meterId: "NM-0001",
+      deviceId: "ZONOS-2401-A1",
+      serialNumber: "ZF200-23-7845",
+      manufacturer: "ZONOS",
+      model: "ZFA200",
+      firmwareVersion: "2.3.5",
+      protocol: "DLMS/COSEM",
+      communicationStatus: "online",
+      lastCommunication: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
+      parameters: JSON.stringify({
+        measurementInterval: 15,
+        communicationMethod: "GPRS",
+        securityLevel: "High"
+      })
+    });
+    
+    await this.createZonosMeterDetails({
+      meterId: "NM-0002",
+      deviceId: "ZONOS-2401-B2",
+      serialNumber: "ZF200-23-8912",
+      manufacturer: "ZONOS",
+      model: "ZFA200",
+      firmwareVersion: "2.3.5",
+      protocol: "DLMS/COSEM",
+      communicationStatus: "online",
+      lastCommunication: new Date(Date.now() - 8 * 60 * 1000), // 8 minutes ago
+      parameters: JSON.stringify({
+        measurementInterval: 15,
+        communicationMethod: "GPRS",
+        securityLevel: "High"
+      })
+    });
+    
+    // Create ZONOS meter readings
+    const readingTimestamps = [
+      new Date(Date.now() - 15 * 60 * 1000), // 15 min ago
+      new Date(Date.now() - 30 * 60 * 1000), // 30 min ago
+      new Date(Date.now() - 45 * 60 * 1000), // 45 min ago
+      new Date(Date.now() - 60 * 60 * 1000)  // 60 min ago
+    ];
+    
+    for (const timestamp of readingTimestamps) {
+      // Readings for meter 1 (incoming)
+      await this.createZonosMeterReading({
+        meterId: "NM-0001",
+        timestamp,
+        activePowerImport: 48.5 + (Math.random() * 2 - 1), // 47.5-49.5 MW
+        activePowerExport: 0,
+        reactivePowerImport: 16.2 + (Math.random() * 1 - 0.5), // 15.7-16.7 MVAr
+        reactivePowerExport: 0,
+        voltageL1: 35.2 + (Math.random() * 0.4 - 0.2), // kV
+        voltageL2: 35.1 + (Math.random() * 0.4 - 0.2), // kV
+        voltageL3: 35.3 + (Math.random() * 0.4 - 0.2), // kV
+        currentL1: 820 + (Math.random() * 40 - 20), // A
+        currentL2: 825 + (Math.random() * 40 - 20), // A
+        currentL3: 815 + (Math.random() * 40 - 20), // A
+        frequency: 50 + (Math.random() * 0.1 - 0.05), // Hz
+        powerFactor: 0.95 + (Math.random() * 0.02 - 0.01),
+        totalActiveEnergy: 24580 + (timestamp.getTime() % 10), // kWh
+        totalReactiveEnergy: 8260 + (timestamp.getTime() % 5), // kVArh
+        qualityIndicator: "valid"
+      });
+      
+      // Readings for meter 2 (outgoing)
+      await this.createZonosMeterReading({
+        meterId: "NM-0002",
+        timestamp,
+        activePowerImport: 0,
+        activePowerExport: 4.8 + (Math.random() * 0.4 - 0.2), // 4.6-5.0 MW
+        reactivePowerImport: 0,
+        reactivePowerExport: 1.6 + (Math.random() * 0.2 - 0.1), // 1.5-1.7 MVAr
+        voltageL1: 10.1 + (Math.random() * 0.2 - 0.1), // kV
+        voltageL2: 10.0 + (Math.random() * 0.2 - 0.1), // kV
+        voltageL3: 10.2 + (Math.random() * 0.2 - 0.1), // kV
+        currentL1: 280 + (Math.random() * 20 - 10), // A
+        currentL2: 275 + (Math.random() * 20 - 10), // A
+        currentL3: 285 + (Math.random() * 20 - 10), // A
+        frequency: 50 + (Math.random() * 0.1 - 0.05), // Hz
+        powerFactor: 0.94 + (Math.random() * 0.02 - 0.01),
+        totalActiveEnergy: 2840 + (timestamp.getTime() % 5), // kWh
+        totalReactiveEnergy: 950 + (timestamp.getTime() % 2), // kVArh
+        qualityIndicator: "valid"
+      });
+    }
   }
 }
 

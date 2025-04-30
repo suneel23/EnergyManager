@@ -10,7 +10,9 @@ import {
   insertAlertSchema,
   insertNetworkNodeSchema,
   insertNetworkConnectionSchema,
-  insertNetworkMeterSchema
+  insertNetworkMeterSchema,
+  insertZonosMeterDetailsSchema,
+  insertZonosMeterReadingsSchema
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
