@@ -716,6 +716,132 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // ZONOS Meter Integration
+  app.get("/api/zonos/meters", async (req: Request, res: Response) => {
+    try {
+      const zonosMeters = await storage.getAllZonosMeterDetails();
+      res.json(zonosMeters);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch ZONOS meter details", error });
+    }
+  });
+  
+  app.get("/api/zonos/meters/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid meter ID format" });
+      }
+      
+      const meter = await storage.getZonosMeterDetails(id);
+      if (!meter) {
+        return res.status(404).json({ message: "ZONOS meter not found" });
+      }
+      
+      res.json(meter);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch ZONOS meter details", error });
+    }
+  });
+  
+  app.get("/api/zonos/meters/meter/:meterId", async (req: Request, res: Response) => {
+    try {
+      const meterId = req.params.meterId;
+      
+      const meter = await storage.getZonosMeterDetailsByMeterId(meterId);
+      if (!meter) {
+        return res.status(404).json({ message: "ZONOS meter not found" });
+      }
+      
+      res.json(meter);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch ZONOS meter details", error });
+    }
+  });
+  
+  app.get("/api/zonos/meters/device/:deviceId", async (req: Request, res: Response) => {
+    try {
+      const deviceId = req.params.deviceId;
+      
+      const meter = await storage.getZonosMeterDetailsByDeviceId(deviceId);
+      if (!meter) {
+        return res.status(404).json({ message: "ZONOS meter not found" });
+      }
+      
+      res.json(meter);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch ZONOS meter details", error });
+    }
+  });
+  
+  app.post("/api/zonos/meters", async (req: Request, res: Response) => {
+    try {
+      const validatedData = insertZonosMeterDetailsSchema.parse(req.body);
+      
+      const newMeter = await storage.createZonosMeterDetails(validatedData);
+      res.status(201).json(newMeter);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid ZONOS meter data", error });
+    }
+  });
+  
+  app.put("/api/zonos/meters/:id", async (req: Request, res: Response) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ message: "Invalid meter ID format" });
+      }
+      
+      const updatedMeter = await storage.updateZonosMeterDetails(id, req.body);
+      if (!updatedMeter) {
+        return res.status(404).json({ message: "ZONOS meter not found" });
+      }
+      
+      res.json(updatedMeter);
+    } catch (error) {
+      res.status(400).json({ message: "Failed to update ZONOS meter", error });
+    }
+  });
+  
+  // ZONOS Meter Readings
+  app.get("/api/zonos/readings/:meterId", async (req: Request, res: Response) => {
+    try {
+      const meterId = req.params.meterId;
+      const limit = req.query.limit ? parseInt(req.query.limit as string) : undefined;
+      
+      const readings = await storage.getZonosMeterReadings(meterId, limit);
+      res.json(readings);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch ZONOS meter readings", error });
+    }
+  });
+  
+  app.get("/api/zonos/readings/:meterId/latest", async (req: Request, res: Response) => {
+    try {
+      const meterId = req.params.meterId;
+      
+      const reading = await storage.getLatestZonosMeterReading(meterId);
+      if (!reading) {
+        return res.status(404).json({ message: "No readings found for this meter" });
+      }
+      
+      res.json(reading);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch latest ZONOS meter reading", error });
+    }
+  });
+  
+  app.post("/api/zonos/readings", async (req: Request, res: Response) => {
+    try {
+      const validatedData = insertZonosMeterReadingsSchema.parse(req.body);
+      
+      const newReading = await storage.createZonosMeterReading(validatedData);
+      res.status(201).json(newReading);
+    } catch (error) {
+      res.status(400).json({ message: "Invalid ZONOS meter reading data", error });
+    }
+  });
+
   // User Management
   app.get("/api/users", async (req: Request, res: Response) => {
     try {
