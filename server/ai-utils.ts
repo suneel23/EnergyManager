@@ -1,9 +1,9 @@
 import OpenAI from "openai";
 
-// Initialize OpenAI client
-const openai = new OpenAI({
+// Initialize OpenAI client only if API key is available
+const openai = process.env.OPENAI_API_KEY ? new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
-});
+}) : null;
 
 // Interface for log analysis results
 export interface LogAnalysisResult {
@@ -67,6 +67,11 @@ export interface PredictiveAnalysisResult {
  */
 export async function analyzeSystemLogs(logs: any[]): Promise<LogAnalysisResult> {
   try {
+    // Check if OpenAI client is available
+    if (!openai) {
+      throw new Error("OpenAI API key not configured");
+    }
+    
     // Prepare the logs for analysis
     // We'll limit to the most recent and relevant logs to avoid token limits
     const recentLogs = logs.slice(0, 100);
@@ -202,6 +207,11 @@ export async function generateEnergyRecommendations(
   summary: string;
 }> {
   try {
+    // Check if OpenAI client is available
+    if (!openai) {
+      throw new Error("OpenAI API key not configured");
+    }
+    
     // Format the data for the AI prompt
     const energyDataFormatted = JSON.stringify(energyData.slice(0, 50), null, 2);
     const equipmentDataFormatted = JSON.stringify(equipmentData.slice(0, 20), null, 2);
@@ -289,6 +299,11 @@ export async function generatePredictiveAnalysis(
   equipmentData: any[]
 ): Promise<PredictiveAnalysisResult> {
   try {
+    // Check if OpenAI client is available
+    if (!openai) {
+      throw new Error("OpenAI API key not configured");
+    }
+    
     // Prepare the data for analysis
     const recentLogs = logs.slice(0, 70); // Get the most recent logs
     const logsFormatted = recentLogs.map(log => 
